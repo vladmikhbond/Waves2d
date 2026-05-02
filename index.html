@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VawesTS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Vawes2d</h1>
+        <div>
+            k = <input id="k" value="50" style="width: 80px;">
+            m = <input id="m" value="100" style="width: 80px;">
+            l = <input id="l" value="0.99" style="width: 100px;">
+            p = <input id="p" value="100" style="width: 80px;">
+            <button id="resetButton">Reset</button>
+            <button id="runButton">Run</button>
+            <span id="params"></span>
+            <span id="time"></span>
+        </div>
+        <canvas id="canvas" width="1000" height="800"></canvas>
+    </main>
+    <script type="module" src="dist/main.js"></script>
+</body>
+</html>

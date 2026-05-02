@@ -1,0 +1,23 @@
+{
+  "name": "waves1d",
+  "version": "0.0.1",
+  "description": "TypeScript application",
+  "main": "main.js",
+  
+  "scripts": {
+    "build": "npx tsc",
+    "start": "npx live-server . --port=5500",
+    "dev": "ts-node src/main.ts"
+  },
+  
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.28.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
