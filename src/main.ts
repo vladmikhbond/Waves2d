@@ -2,7 +2,7 @@ import Space from "./models/space.js";
 import { show } from "./view/view.js";
 
 const n = 1000;      // total area
-const n_vis = 400;   // visible middle area
+const n_vis = 500;   // visible middle area
 const mid = n / 2 | 0, beg = ( n - n_vis) / 2 | 0, end = beg + n_vis;
 
 let k: number;
