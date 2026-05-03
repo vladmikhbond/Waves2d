@@ -3,7 +3,7 @@ import { show } from "./view/view.js";
 
 const n = 1000;      // total area
 const n_vis = 500;   // visible middle area
-const mid = n / 2 | 0, beg = ( n - n_vis) / 2 | 0, end = beg + n_vis;
+// const mid = n / 2 | 0, beg = ( n - n_vis) / 2 | 0, end = beg + n_vis;
 
 let k: number;
 let m: number;
@@ -57,7 +57,7 @@ function step() {
     show(space, n_vis);
 
     // stop when limit
-    if (space.nodes[1][1].z > 0) stop(); 
+    if (space.nodes[1][1].z > 0.01) stop(); 
 }
 
 function stop() {

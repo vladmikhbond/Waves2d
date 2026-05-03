@@ -8,7 +8,7 @@ class Oscillator {
     t = 0
     r = 0
     c = 0
-    dt = 0.1
+    dt = 2 * Math.PI * 0.1
     
     constructor(r: number, c: number, a: number) {
         this.r = r;
@@ -30,7 +30,9 @@ export default class Space {
     loss = 0.99  // коеф. втрат
     nodes: Node[][] = []
     oscillators: Oscillator[] = []
-
+    zMin: number = 0;
+    zMax: number = 0;
+    zMid: number = 0;
 
     constructor(n: number, k: number, m: number, l: number) {
         this.k = k;
@@ -63,11 +65,17 @@ export default class Space {
             }
         }
         // амплітуди
+        this.zMax = this.zMin = this.nodes[0][0].z;
+        this.zMid = 0;
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {
                 this.nodes[r][c].z += this.nodes[r][c].v;
+                if (this.nodes[r][c].z > this.zMax) this.zMax = this.nodes[r][c].z;
+                if (this.nodes[r][c].z < this.zMin) this.zMin = this.nodes[r][c].z;
+                this.zMid += this.nodes[r][c].z;
             }
         }
+        this.zMid /= n*n
 
         // осцилятори
         for (let o of this.oscillators) {

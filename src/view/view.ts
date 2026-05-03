@@ -6,22 +6,29 @@ const time = (document.getElementById("time") as HTMLSpanElement)!;
 const ctx = canvas.getContext("2d")!;
 const iData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 const data = iData.data 
-data.fill(255);
+// data.fill(0);
 
-// for (let y = 0; y < canvas.height; y++) {
-//     for (let x = 0; x < canvas.width; x++) {
-//         let idx = (y * canvas.width + x) * 4 + 3;
-//         data[idx] = 255;
-//         data[idx + 4] = 255;
-//         data[idx + canvas.width * 4] = 255;
-//         data[idx + canvas.width * 4 + 4] = 255;  
-//     }
-// }
+for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+        col(x, y, 0, 0); // r
+        col(x, y, 0, 1); // g
+        col(x, y, 0, 2); // b
+        col(x, y, 255, 3); // a
+    }
+}
+ctx.putImageData(iData, 0, 0);
 
+function col(x: number, y: number, level: number, shift: number) {
+    let ir1 = (y * canvas.width + x) * 4 + shift;
+    let ir2 = ir1 + 4;
+    let ir3 = ir1 + canvas.width * 4;
+    let ir4 = ir3 + 4;
+    data[ir1] = data[ir2] = data[ir3] = data[ir4] = level;
+}
 
 export function show(space: Space, n_vis: number ) {
     const n = space.nodes.length
-    const scale = canvas.width / n_vis
+    const scale = 2; //canvas.width / n_vis
 
     let beg = (n - n_vis) / 2, end = (n + n_vis) / 2;
 
@@ -29,9 +36,17 @@ export function show(space: Space, n_vis: number ) {
         for (let c = beg; c < end; c++) {
             let x = (c - beg) * scale;
             let y = (r - beg) * scale;
-            let rIdx = (y * canvas.width + x) * 4;
-            data[rIdx] = data[rIdx + 4] = data[rIdx + canvas.width * 4] = data[rIdx + canvas.width * 4 + 4] = 
-                space.nodes[r][c].z <= 0.01 ? 255 : 0; 
+            let level =  127 + (500 * space.nodes[r][c].z) | 0;
+            if (level > 255) level = 255;
+            if (level < 0) level = 0;
+            
+            for (let c of [0, 1, 2]) {
+                col(x, y, level, c);
+                col(x+1, y, level, 2);
+                col(x, y+1, level, 2);
+                col(x+1, y+1, level, 2);
+            }
+
         }
     }
     ctx.putImageData(iData, 0, 0);
