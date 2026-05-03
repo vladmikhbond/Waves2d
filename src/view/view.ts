@@ -28,23 +28,20 @@ function col(x: number, y: number, level: number, shift: number) {
 
 export function show(space: Space, n_vis: number ) {
     const n = space.nodes.length
-    const scale = 2; //canvas.width / n_vis
+
 
     let beg = (n - n_vis) / 2, end = (n + n_vis) / 2;
 
     for (let r = beg; r < end; r++) {
         for (let c = beg; c < end; c++) {
-            let x = (c - beg) * scale;
-            let y = (r - beg) * scale;
+            let x = c - beg;
+            let y = r - beg;
             let level =  127 + (500 * space.nodes[r][c].z) | 0;
             if (level > 255) level = 255;
             if (level < 0) level = 0;
             
             for (let c of [0, 1, 2]) {
                 col(x, y, level, c);
-                col(x+1, y, level, 2);
-                col(x, y+1, level, 2);
-                col(x+1, y+1, level, 2);
             }
 
         }
