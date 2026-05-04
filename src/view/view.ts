@@ -6,14 +6,11 @@ const time = (document.getElementById("time") as HTMLSpanElement)!;
 const ctx = canvas.getContext("2d")!;
 const iData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 const data = iData.data 
-// data.fill(0);
+let kz = 50;
 
 for (let y = 0; y < canvas.height; y++) {
     for (let x = 0; x < canvas.width; x++) {
-        col(x, y, 0, 0); // r
-        col(x, y, 0, 1); // g
-        col(x, y, 0, 2); // b
-        col(x, y, 255, 3); // a
+        col(x, y, 255, 2); // b
     }
 }
 ctx.putImageData(iData, 0, 0);
@@ -26,23 +23,22 @@ function col(x: number, y: number, level: number, shift: number) {
     data[ir1] = data[ir2] = data[ir3] = data[ir4] = level;
 }
 
+
 export function show(space: Space, n_vis: number ) {
-    const n = space.nodes.length
-
-
+    const n = space.nodes.length;
     let beg = (n - n_vis) / 2, end = (n + n_vis) / 2;
 
     for (let r = beg; r < end; r++) {
         for (let c = beg; c < end; c++) {
             let x = c - beg;
             let y = r - beg;
-            let level =  127 + (500 * space.nodes[r][c].z) | 0;
+            let level =  127 + 127 * kz * space.nodes[r][c].z | 0;
             if (level > 255) level = 255;
             if (level < 0) level = 0;
             
-            for (let c of [0, 1, 2]) {
-                col(x, y, level, c);
-            }
+            
+                col(x, y, level, 3);
+            
 
         }
     }
