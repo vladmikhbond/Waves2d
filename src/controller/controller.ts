@@ -3,7 +3,7 @@ import Oscillator from "../models/oscillator.js";
 import Space from "../models/space.js";
 import { show } from "../view/view.js";
 
-const n = 1000;      // total area
+const n = 900;      // total area
 const n_vis = 500;   // visible middle area 
 
 // показує розмір простору
@@ -22,7 +22,8 @@ export default class Controller {
     addListeners() {
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.space = createSpace();
-            this.space.addOscillator(new Oscillator(n/2, n/2, 1));
+            //this.space.addOscillator(new Oscillator(n/2, n/2, 1, 1/40));
+            this.space.addOscillator(new Oscillator(300, 300, 1, 1/20));
             show(this.space, n_vis);
         });
 
@@ -45,7 +46,10 @@ export default class Controller {
         this.space.step();  
         show(this.space, n_vis);
         // stop when limit
-        if (this.space.nodes[1][1].z > 0.01) this.stop(); 
+        if (this.space.nodes[1][1].z > 0.001) {
+            this.stop(); 
+            console.log(this.space.nodes[1][1].z)
+        }
     }
 
     stop() {
