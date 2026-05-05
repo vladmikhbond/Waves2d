@@ -1,8 +1,9 @@
 import Oscillator from "../models/oscillator.js";
 
 class Node {
-    z: number = 0
-    v: number  = 0
+    z = 0
+    v = 0
+    stone = false;
 }
 
 export default class Space {
@@ -49,23 +50,13 @@ export default class Space {
             }
         }
         // вузли
-
-
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {
                 this.nodes[r][c].z += this.nodes[r][c].v;
+                if (this.nodes[r][c].stone) 
+                    this.nodes[r][c].z = 0;
             }
         }
-        // 
-        // this.zMax = this.zMin = this.nodes[0][0].z;
-
-        // for (let r = 1; r < n - 1; r++) {
-        //     for (let c = 1; c < n - 1; c++) {;
-        //         if (this.nodes[r][c].z > this.zMax) this.zMax = this.nodes[r][c].z;
-        //         if (this.nodes[r][c].z < this.zMin) this.zMin = this.nodes[r][c].z;
-        //     }
-        // }
-
 
         // осцилятори
         for (let o of this.oscillators) {
@@ -74,7 +65,6 @@ export default class Space {
     
         // час 
         this.time++;
-        // if (this.time % 5 == 0) console.log(this.time, this.zMin, this.zMax);
     }
 
 }
