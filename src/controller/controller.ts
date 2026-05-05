@@ -5,10 +5,15 @@ import { show } from "../view/view.js";
 
 const n = 900;      // total area
 const n_vis = 500;   // visible middle area 
+const beg = (n - n_vis) / 2 | 0;
+const scale = 2;
 
 // показує розмір простору
 document.getElementById("params")!.innerHTML = `${n}/${n_vis}`
 
+enum State {
+    Osc, Bar
+}
 
 export default class Controller {
     space: Space;
@@ -22,8 +27,7 @@ export default class Controller {
     addListeners() {
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.space = createSpace();
-            //this.space.addOscillator(new Oscillator(n/2, n/2, 1, 1/40));
-            this.space.addOscillator(new Oscillator(300, 300, 1, 1/20));
+            // this.space.addOscillator(new Oscillator(300, 300, 1, 1/20));
             show(this.space, n_vis);
         });
 
@@ -38,9 +42,34 @@ export default class Controller {
                 this.step();
             }
         });
+
+        document.getElementById("canvas")!.addEventListener("mousedown", (e) => {
+            const c = (e.offsetX / scale + beg) | 0;
+            const r = (e.offsetY / scale  + beg) | 0;
+            if (this.state == State.Osc) {
+                this.space.addOscillator(new Oscillator(r, c, 1, 1/20));
+            }
+            
+    
+        });
+
+        document.getElementById("canvas")!.addEventListener("mousemove", (e) => {
+        
+        });
+
+        document.getElementById("canvas")!.addEventListener("mouseup", (e) => {
+        
+        });
     }
 
-// -----------------------------------------------------------------------
+    get state(): State {
+        const osc_selected = (document.getElementById("osc") as HTMLInputElement).checked;
+        return osc_selected ? State.Osc : State.Bar;
+    }
+
+
+
+//#region step-stop-run
 
     step() {
         this.space.step();  
@@ -68,7 +97,7 @@ export default class Controller {
         }, period);
     }
 
-
+//#endregion
 
 }
 
