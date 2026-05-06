@@ -11,24 +11,25 @@
     <main class="container">
         <h1>
             Vawes2d 
-            <small id="params"></small>
+            <small id="params"></small><b id="time"></b>
         </h1>
         <div>
-            k: <input type="text" id="k" value="50" >
-            m: <input type="text" id="m" value="100" >
+            k/m: <input type="text" id="k_m" value="5/10" >
             loss: <input type="text" id="l" value="0.99" >
-            p: <input type="text" id="p" value="10" >
+            t: <input type="text" id="tact" value="10" >
+            
             <button id="resetButton">Reset</button>
             <button id="runButton">Run</button>
 
-            <input type="radio" id="stone" name="state" />Stone                        
+            <input type="range" id="zScale" min="1" max="100" value="50">
+            
+            <input type="radio" id="stone" name="state" />Bar                        
             <input type="radio" id="osc" name="state" checked />Osc
-            <input type="text" id="lambda" value="1/20">
-            
-            <b id="time"></b>
-            
+            <input type="text" id="lambda" value="20" title="Період - тривалість одного коливання осцілятору">
         </div>
+
         <canvas id="canvas" width="500" height="500" style="width: 1000px; height: 1000px;"></canvas>
+
     </main>
     <script type="module" src="dist/main.js"></script>
 </body>

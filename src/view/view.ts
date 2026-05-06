@@ -1,4 +1,5 @@
 import Space from "../models/space.js";
+import { zScale } from "../controller/controller.js";   
 
 const canvas = (document.getElementById("canvas") as HTMLCanvasElement)!;
 const time = (document.getElementById("time") as HTMLSpanElement)!;
@@ -7,7 +8,7 @@ const ctx = canvas.getContext("2d")!;
 const iData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 const data = iData.data 
 
-let kz = 50;
+
 
 // fill the blue channel
 for (let y = 0; y < canvas.height; y++) {
@@ -36,7 +37,7 @@ export function show(space: Space, n_vis: number ) {
         for (let c = beg; c < end; c++) {
             let x = c - beg;
             let y = r - beg;
-            let level =  127 + 127 * kz * space.nodes[r][c].z | 0;
+            let level =  127 + 127 * zScale * space.nodes[r][c].z | 0;
             if (level > 255) level = 255;
             if (level < 0) level = 0;
             color(x, y, level, 3);

@@ -3,11 +3,18 @@ canvas {
 }
 
 input[type=text] {
-    width: 80px !important;
+    width: 80px ;
     padding: 10px;
 }
+input[type=range] {
+    width: 200px ;
+}
 
-#params {
+#params, #time {
     font-size: large;
     margin-left: 50px;
+}
+
+#resetButton {
+    background-color: brown;
 }
