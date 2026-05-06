@@ -1,3 +1,13 @@
 canvas {
     border: thin solid gray
 }
+
+input[type=text] {
+    width: 80px !important;
+    padding: 10px;
+}
+
+#params {
+    font-size: large;
+    margin-left: 50px;
+}

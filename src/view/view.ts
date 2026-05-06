@@ -61,7 +61,7 @@ export function show(space: Space, n_vis: number ) {
 
 // in canvas coords
 export function grayLine(x1: number, y1: number, x2: number, y2: number) {
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = "lightgray";
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);

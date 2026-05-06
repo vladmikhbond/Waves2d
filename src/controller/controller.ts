@@ -9,7 +9,7 @@ const beg = (n - n_vis) / 2 | 0;
 const scale = 2;
 
 // показує розмір простору
-document.getElementById("params")!.innerHTML = `${n}/${n_vis}`
+document.getElementById("params")!.innerHTML = `${n_vis}/${n}`
 
 enum State {
     Osc, Stone
@@ -21,13 +21,22 @@ export default class Controller {
 
     constructor() {
         this.space = createSpace();
-        this.addButtonListeners();
+        this.addOtherListeners();
         this.addMouseListeners();
     }
 
-//#region button listeners
+    get state(): State {
+        const osc_selected = (document.getElementById("osc") as HTMLInputElement).checked;
+        return osc_selected ? State.Osc : State.Stone;
+    }
 
-    addButtonListeners() {
+
+//#region other listeners
+
+   
+
+    addOtherListeners() 
+    {
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.space = createSpace();
             this.stop();
@@ -45,6 +54,18 @@ export default class Controller {
                 this.step();
             }
         });
+
+        document.getElementById("osc")!.addEventListener("change", () => {
+            document.getElementById("lambda")!.style.display = 
+                this.state == State.Osc ? "inline" : "none";
+        });
+
+        document.getElementById("stone")!.addEventListener("change", () => {
+            document.getElementById("lambda")!.style.display = 
+                this.state == State.Osc ? "inline" : "none";
+        });
+
+        
     }
 
 
@@ -111,9 +132,12 @@ export default class Controller {
         });
     }
 
-    addOscillators(r0:number, r1:number, c0:number, c1: number) {
+    addOscillators(r0:number, r1:number, c0:number, c1: number) 
+    {
+        let lambda = eval((document.getElementById("lambda") as HTMLInputElement).value);
+        
         if (c0 == c1 && r0 == r1) {
-            this.space.addOscillator(new Oscillator(r0, c0, 1, 1/20));
+            this.space.addOscillator(new Oscillator(r0, c0, 1, lambda));
             return;
         }
         if (Math.abs(c1 - c0) < Math.abs(r1 - r0)) {
@@ -121,14 +145,14 @@ export default class Controller {
                 [r0, r1, c0, c1] = [r1, r0, c1, c0]; 
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
-                this.space.addOscillator(new Oscillator(r, c, 4/(r1 - r0), 1/20));
+                this.space.addOscillator(new Oscillator(r, c, 4/(r1 - r0), lambda));
             }
         } else {
             if (c1 < c0)  
                 [r0, r1, c0, c1] = [r1, r0, c1, c0];             
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
-                this.space.addOscillator(new Oscillator(r, c, 4/(c1 - c0), 1/20));
+                this.space.addOscillator(new Oscillator(r, c, 4/(c1 - c0), lambda));
             }
         }
     }
@@ -157,12 +181,7 @@ export default class Controller {
         }
     }
 
-    get state(): State {
-        const osc_selected = (document.getElementById("osc") as HTMLInputElement).checked;
-        return osc_selected ? State.Osc : State.Stone;
-    }
 //#endregion
-
 
 
 }
