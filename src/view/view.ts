@@ -1,4 +1,6 @@
 import Space from "../models/space.js";
+import {Node} from "../models/space.js";
+
 import { zScale } from "../controller/controller.js";   
 
 const canvas = (document.getElementById("canvas") as HTMLCanvasElement)!;

@@ -1,7 +1,7 @@
 
 import Oscillator from "../models/oscillator.js";
 import Space from "../models/space.js";
-import { show, grayLine } from "../view/view.js";
+import { show, grayLine} from "../view/view.js";
 
 const n = 900;      // total area
 const n_vis = 500;   // visible middle area 
@@ -13,7 +13,7 @@ export let zScale = 50;
 document.getElementById("params")!.innerHTML = `${n_vis}/${n}`
 
 enum State {
-    Osc, Stone
+    Test, Osc, Stone
 }
 
 export default class Controller {
@@ -27,8 +27,11 @@ export default class Controller {
     }
 
     get state(): State {
-        const osc_selected = (document.getElementById("osc") as HTMLInputElement).checked;
-        return osc_selected ? State.Osc : State.Stone;
+        if ((document.getElementById("osc") as HTMLInputElement).checked)
+            return State.Osc;
+        if ((document.getElementById("stone") as HTMLInputElement).checked)
+            return State.Stone;
+        return State.Test;        
     }
 
 
@@ -53,18 +56,9 @@ export default class Controller {
             }
         });
 
-        document.getElementById("osc")!.addEventListener("change", () => {
-            document.getElementById("lambda")!.style.display = 
-                this.state == State.Osc ? "inline" : "none";
-        });
-
-        document.getElementById("stone")!.addEventListener("change", () => {
-            document.getElementById("lambda")!.style.display = 
-                this.state == State.Osc ? "inline" : "none";
-        });
-
         document.getElementById("zScale")!.addEventListener("change", (e) => {
             zScale = +(e.target as HTMLInputElement).value;
+            show(this.space, n_vis);
         });
 
         
@@ -102,7 +96,7 @@ export default class Controller {
 //#region mouse listeners
     addMouseListeners() {
         
-        let c0 = 0, r0 = 0, x0 = 0, y0 = 0, mdown = false;
+        let c0 = 0, r0 = 0, x0 = 0, y0 = 0, mousedown = false;
         const canvas = document.getElementById("canvas")!
 
         canvas.addEventListener("mousedown", (e) => {
@@ -110,18 +104,23 @@ export default class Controller {
             y0 = e.offsetY;
             c0 = (e.offsetX / scale + beg) | 0;
             r0 = (e.offsetY / scale  + beg) | 0;
-            mdown = true;
+            //
+            if (this.state == State.Test) {
+                let node = this.space.nodes[r0][c0];
+                document.getElementById("info")!.innerHTML = `v:${node.v} z:${node.z} r: ${r0} c:${c0}`;
+            }
+            mousedown = true;
         });
 
         canvas.addEventListener("mousemove", (e) => {
-            if (mdown) {
+            if (mousedown) {
                 show(this.space, n_vis);
                 grayLine(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale); 
             }
         });
 
         canvas.addEventListener("mouseup", (e: MouseEvent) => {
-            mdown = false;
+            mousedown = false;
             const c1 = (e.offsetX / scale + beg) | 0;
             const r1 = (e.offsetY / scale  + beg) | 0;
             if (this.state == State.Osc) {

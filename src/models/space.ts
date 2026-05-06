@@ -1,6 +1,6 @@
 import Oscillator from "../models/oscillator.js";
 
-class Node {
+export class Node {
     z = 0
     v = 0
     stone = false;
@@ -48,8 +48,8 @@ export default class Space {
         // швидкості
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {
-                let dz = this.nodes[r-1][c-1].z + this.nodes[r-1][c+1].z +
-                         this.nodes[r+1][c-1].z + this.nodes[r+1][c+1].z -
+                let dz = this.nodes[r-1][c].z + this.nodes[r+1][c].z +
+                         this.nodes[r][c-1].z + this.nodes[r][c+1].z -
                          4 * this.nodes[r][c].z;
                 let a = this.k_m * dz;
                 this.nodes[r][c].v += a;
