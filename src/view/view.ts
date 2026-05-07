@@ -1,72 +1,105 @@
+import * as THREE from "three";
 import Space from "../models/space.js";
-import {Node} from "../models/space.js";
+import { zScale } from "../controller/controller.js";
 
-import { zScale } from "../controller/controller.js";   
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const time = document.getElementById("time") as HTMLSpanElement;
 
-const canvas = (document.getElementById("canvas") as HTMLCanvasElement)!;
-const time = (document.getElementById("time") as HTMLSpanElement)!;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(canvas.width, canvas.height, false);
 
-const ctx = canvas.getContext("2d")!;
-const iData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const data = iData.data 
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x101020);
 
 
+const camera = new THREE.PerspectiveCamera(28, canvas.width / canvas.height, 0.1, 5000);
+camera.position.set(0, 1000, 0);
+camera.lookAt(0, 0, 0);
 
-// fill the blue channel
-for (let y = 0; y < canvas.height; y++) {
-    for (let x = 0; x < canvas.width; x++) {
-        color(x, y, 255, 2); // b
-    }
+const ambientLight = new THREE.AmbientLight(0x808080, 1.0);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+directionalLight.position.set(1, -2, 2);
+scene.add(ambientLight, directionalLight);
+
+let mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
+let positions: Float32Array | null = null;
+let nVisCurrent = 0;
+
+const oscGroup = new THREE.Group();
+scene.add(oscGroup);
+
+function createGrid(n_vis: number) {
+    const geometry = new THREE.PlaneGeometry(n_vis, n_vis, n_vis - 1, n_vis - 1);
+    geometry.rotateX(-Math.PI / 2);
+
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x4682b4,
+        wireframe: false,
+        side: THREE.DoubleSide,
+        metalness: 0.2,
+        roughness: 0.8,
+        flatShading: false,
+    });
+
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0, 0, 0);
+    scene.add(mesh);
+
+    positions = geometry.attributes.position.array as Float32Array;
+    nVisCurrent = n_vis;
 }
-ctx.putImageData(iData, 0, 0);
 
-// 
-function color(x: number, y: number, depth: number, channel: number) {
-    let i1 = (y * canvas.width + x) * 4 + channel;
-    let i2 = i1 + 4;
-    let i3 = i1 + canvas.width * 4;
-    let i4 = i3 + 4;
-    data[i1] = data[i2] = data[i3] = data[i4] = depth;
-}
-
-
-export function show(space: Space, n_vis: number ) {
-    // draw nodes as ImageData
+function updateSurface(space: Space, n_vis: number) {
     const n = space.nodes.length;
-    let beg = (n - n_vis) / 2, end = (n + n_vis) / 2;
+    const beg = (n - n_vis) / 2 | 0;
+    const scaleY = Math.max(0.001, zScale);
 
-    for (let r = beg; r < end; r++) {
-        for (let c = beg; c < end; c++) {
-            let x = c - beg;
-            let y = r - beg;
-            let level =  127 + 127 * zScale * space.nodes[r][c].z | 0;
-            if (level > 255) level = 255;
-            if (level < 0) level = 0;
-            color(x, y, level, 3);
+    if (!mesh || nVisCurrent !== n_vis) {
+        if (mesh) scene.remove(mesh);
+        createGrid(n_vis);
+    }
 
-            if (space.nodes[r][c].stone) {
-                color(x, y, 0, 3);
-            }
+    if (!positions || !mesh) return;
+
+    const rowSize = n_vis;
+    for (let r = 0; r < n_vis; r++) {
+        for (let c = 0; c < n_vis; c++) {
+            const node = space.nodes[beg + r][beg + c];
+            const idx = 3 * (r * rowSize + c);
+            positions[idx + 1] = node.z * scaleY;
         }
     }
-    ctx.putImageData(iData, 0, 0);
-    
-    // draw oscillators
-    for (let o of space.oscillators) {
-        let x = o.c - beg;
-        let y = o.r - beg;
-        ctx.fillStyle = "red";
-        ctx.fillRect(x-1, y-1, 3, 3);
+
+    const geometry = mesh.geometry as THREE.BufferGeometry;
+    geometry.attributes.position.needsUpdate = true;
+    geometry.computeVertexNormals();
+}
+
+function updateOscillators(space: Space, n_vis: number) {
+    const n = space.nodes.length;
+    const beg = (n - n_vis) / 2 | 0;
+    oscGroup.clear();
+
+    const sphereGeom = new THREE.SphereGeometry(Math.max(0.5, n_vis * 0.002), 10, 10);
+    const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
+
+    for (const o of space.oscillators) {
+        const sphere = new THREE.Mesh(sphereGeom, sphereMat);
+        sphere.position.set(o.c - beg - n_vis / 2 + 0.5, 0, o.r - beg - n_vis / 2 + 0.5);
+        oscGroup.add(sphere);
     }
-    //
-    time.innerHTML = space.time.toString()
+}
+
+
+export function show(space: Space, n_vis: number) {
+    updateSurface(space, n_vis);
+    // updateOscillators(space, n_vis);
+    renderer.render(scene, camera);
+    time.textContent = space.time.toString();
 }
 
 // in canvas coords
-export function grayLine(x1: number, y1: number, x2: number, y2: number) {
-    ctx.strokeStyle = "lightgray";
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+export function grayLine(_x1: number, _y1: number, _x2: number, _y2: number) {
+    // 3D renderer uses the same canvas, so 2D overlay drawing is disabled.
 }
