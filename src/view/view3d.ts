@@ -10,15 +10,15 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(canvas.width, canvas.height, false);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x101020);
+scene.background = new THREE.Color(0x87CEEB);
 
 
 const camera = new THREE.PerspectiveCamera(28, canvas.width / canvas.height, 0.1, 5000);
-camera.position.set(0, 1000, 0);
+camera.position.set(0, -1000, 0);
 camera.lookAt(0, 0, 0);
 
-const ambientLight = new THREE.AmbientLight(0x808080, 1.0);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
 directionalLight.position.set(1, -2, 2);
 scene.add(ambientLight, directionalLight);
 
@@ -26,19 +26,19 @@ let mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = 
 let positions: Float32Array | null = null;
 let nVisCurrent = 0;
 
-const oscGroup = new THREE.Group();
-scene.add(oscGroup);
+// const oscGroup = new THREE.Group();
+// scene.add(oscGroup);
 
 function createGrid(n_vis: number) {
     const geometry = new THREE.PlaneGeometry(n_vis, n_vis, n_vis - 1, n_vis - 1);
-    geometry.rotateX(-Math.PI / 2);
+    geometry.rotateX(Math.PI / 2);
 
     const material = new THREE.MeshStandardMaterial({
-        color: 0x4682b4,
+        color: 0x00BFFF,
         wireframe: false,
         side: THREE.DoubleSide,
-        metalness: 0.2,
-        roughness: 0.8,
+        metalness: 0.3,
+        roughness: 0.5,
         flatShading: false,
     });
 
@@ -76,20 +76,20 @@ function updateSurface(space: Space, n_vis: number) {
     geometry.computeVertexNormals();
 }
 
-function updateOscillators(space: Space, n_vis: number) {
-    const n = space.nodes.length;
-    const beg = (n - n_vis) / 2 | 0;
-    oscGroup.clear();
+// function updateOscillators(space: Space, n_vis: number) {
+//     const n = space.nodes.length;
+//     const beg = (n - n_vis) / 2 | 0;
+//     oscGroup.clear();
 
-    const sphereGeom = new THREE.SphereGeometry(Math.max(0.5, n_vis * 0.002), 10, 10);
-    const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
+//     const sphereGeom = new THREE.SphereGeometry(Math.max(0.5, n_vis * 0.002), 10, 10);
+//     const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
 
-    for (const o of space.oscillators) {
-        const sphere = new THREE.Mesh(sphereGeom, sphereMat);
-        sphere.position.set(o.c - beg - n_vis / 2 + 0.5, 0, o.r - beg - n_vis / 2 + 0.5);
-        oscGroup.add(sphere);
-    }
-}
+//     for (const o of space.oscillators) {
+//         const sphere = new THREE.Mesh(sphereGeom, sphereMat);
+//         sphere.position.set(o.c - beg - n_vis / 2 + 0.5, 0, o.r - beg - n_vis / 2 + 0.5);
+//         oscGroup.add(sphere);
+//     }
+// }
 
 
 export function show(space: Space, n_vis: number) {

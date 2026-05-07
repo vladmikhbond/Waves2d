@@ -1,7 +1,7 @@
 
 import Oscillator from "../models/oscillator.js";
 import Space from "../models/space.js";
-import { show, grayLine} from "../view/view.js";
+import { show, grayLine} from "../view/view3d.js";
 
 const n = 900;      // total area
 const n_vis = 500;   // visible middle area 
