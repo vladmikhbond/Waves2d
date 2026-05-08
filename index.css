@@ -9,6 +9,9 @@ input[type=text] {
 input[type=range] {
     width: 200px ;
 }
+input[type=radio] {
+    margin: 0;
+}
 
 #params, #time, #info {
     font-size: large;
@@ -17,4 +20,8 @@ input[type=range] {
 
 #resetButton {
     background-color: brown;
+}
+label {
+    margin: 0px;
+    padding: 0;
 }

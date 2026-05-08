@@ -1,13 +1,22 @@
 
 import Oscillator from "../models/oscillator.js";
 import Space from "../models/space.js";
-import { show, grayLine} from "../view/view3d.js";
+
+import { init3d, show3d, grayLine3d} from "../view/view3d.js";
+import { init2d, show2d, grayLine2d} from "../view/view2d.js";
+import Bar from "../models/bar.js";
 
 const n = 900;      // total area
 const n_vis = 500;   // visible middle area 
 const beg = (n - n_vis) / 2 | 0;
 const scale = 2;
 export let zScale = 50;
+
+const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
+const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
+
+let show = show2d;
+let grayLine = grayLine2d;
 
 // показує розмір простору
 document.getElementById("params")!.innerHTML = `${n_vis}/${n}`
@@ -23,7 +32,11 @@ export default class Controller {
     constructor() {
         this.space = createSpace();
         this.addOtherListeners();
-        this.addMouseListeners();
+        this.addMouseListeners(canvas2d);
+        this.addMouseListeners(canvas3d);
+        init2d();
+        init3d();
+        show(this.space, n_vis);
     }
 
     get state(): State {
@@ -49,8 +62,25 @@ export default class Controller {
             else this.run();
         });
 
+        document.getElementById("dButton")!.addEventListener("click", () => {
+            if (canvas2d.style.display == "block") {
+                show = show3d;
+                grayLine = grayLine3d;
+                canvas2d.style.display = "none";
+                canvas3d.style.display = "block";                
+            } else {
+                show = show2d;
+                grayLine = grayLine2d;
+                canvas2d.style.display = "block";
+                canvas3d.style.display = "none";                
+            }
+            show(this.space, n_vis);
+        });
+
+        
+
         document.addEventListener("keydown", (e: KeyboardEvent) => {
-            if (e.key == "1") {
+            if (e.key == " ") {
                 this.stop();
                 this.step();
             }
@@ -63,7 +93,6 @@ export default class Controller {
 
         
     }
-
 
     step() {
         this.space.step();  
@@ -83,21 +112,19 @@ export default class Controller {
     }
 
     run() {
-        const tact = +(document.getElementById("tact") as HTMLInputElement)!.value;
-
         if (this.timer) return;
         this.timer = setInterval(() => { 
             this.step();
-        }, tact);
+        }, 1);
     }
 //#endregion
     
 
 //#region mouse listeners
-    addMouseListeners() {
+    addMouseListeners(canvas: HTMLElement) {
         
         let c0 = 0, r0 = 0, x0 = 0, y0 = 0, mousedown = false;
-        const canvas = document.getElementById("canvas")!
+
 
         canvas.addEventListener("mousedown", (e) => {
             x0 = e.offsetX;
@@ -135,12 +162,13 @@ export default class Controller {
     addOscillators(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
     {
         let lambda = 1 / +(document.getElementById("lambda") as HTMLInputElement).value;
-        
+        let ampl = 1;
+
         if (c0 == c1 && r0 == r1) {
             if (altKey) {
                 this.space.removeOscillatorAt(r1, c1);
             } else {
-                this.space.addOscillator(new Oscillator(r0, c0, 1, lambda));
+                this.space.addOscillator(new Oscillator(r0, c0, ampl, lambda));
             }
             return;
         }
@@ -153,7 +181,7 @@ export default class Controller {
                 if (altKey) {
                     this.space.removeOscillatorAt(r, c);
                 } else {
-                    this.space.addOscillator(new Oscillator(r, c, 4/(r1 - r0), lambda));
+                    this.space.addOscillator(new Oscillator(r, c, 2 * ampl/(r1 - r0 + 1), lambda));
                 }
             }
         } else {
@@ -164,7 +192,7 @@ export default class Controller {
                 if (altKey) {
                     this.space.removeOscillatorAt(r, c);
                 } else {
-                    this.space.addOscillator(new Oscillator(r, c, 4/(c1 - c0), lambda));
+                    this.space.addOscillator(new Oscillator(r, c, 2 * ampl/(c1 - c0 + 1), lambda));
                 }                
             }
         }
@@ -172,11 +200,19 @@ export default class Controller {
 
     addStones(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
     {
+        if (altKey) {
+            this.space.removeBar(r0, c0, r1, c1);
+        } else {
+            this.space.bars.push(new Bar(r0, c0, r1, c1));
+        }
+        
+
         const newStoneValue = !altKey;
         if (c0 == c1 && r0 == r1) {
             this.space.nodes[r0][c0].stone = newStoneValue;
             return;
         }
+
         if (Math.abs(c1 - c0) < Math.abs(r1 - r0)) {
             if (r1 < r0)  
                 [r0, r1, c0, c1] = [r1, r0, c1, c0]; 

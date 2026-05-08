@@ -16,22 +16,24 @@
         <div>
             k/m: <input type="text" id="k_m" value="5/10" >
             loss: <input type="text" id="l" value="0.99" >
-            t: <input type="text" id="tact" value="10" >
             
-            <button id="resetButton">Reset</button>
+            <button id="resetButton">C</button>
             <button id="runButton">Run</button>
+            <button id="dButton">d</button>
 
             <input type="range" id="zScale" min="1" max="100" value="50">
             
-            <input type="radio" id="test" name="state" />Tes                        
-            <input type="radio" id="stone" name="state" />Bar                        
-            <input type="radio" id="osc" name="state" checked />Osc
+            <input type="radio" id="test" name="state" /> 
+            <label for="test">👓</label>                       
+            <input type="radio" id="stone" name="state" /> 
+            <label for="stone">⛔</label>                         
+            <input type="radio" id="osc" name="state" checked />
+            <label for="osc">🔔</label>
             <input type="text" id="lambda" value="20" title="Період - тривалість одного коливання осцілятору">
         </div>
 
-        <canvas id="canvas" width="500" height="500" style="width: 1000px; height: 1000px;"></canvas>
-
-
+        <canvas id="canvas2d" width="500" height="500" style="width: 1000px; height: 1000px; display:block;"></canvas>
+        <canvas id="canvas3d" width="500" height="500" style="width: 1000px; height: 1000px; display: none;"></canvas>
     </main>
     <script type="importmap">
     {

@@ -1,4 +1,5 @@
 import Oscillator from "../models/oscillator.js";
+import Bar from "../models/bar.js";
 
 export class Node {
     z = 0
@@ -6,13 +7,14 @@ export class Node {
     stone = false;
 }
 
-export default class Space {
-
+export default class Space 
+{
     k_m = 50/100    // жорсткість / маса
     time = 0        // такти часу
     loss = 0.99     // коеф. втрат
     nodes: Node[][] = []
     oscillators: Oscillator[] = []
+    bars: Bar[] = []
 
     zMax: number = 0;
 
@@ -39,6 +41,18 @@ export default class Space {
             let o = this.oscillators[i];
             if (Math.hypot(o.c - c, o.r - r) <= 4) {
                 this.oscillators.splice(i, 1);
+            }
+        }
+    }
+
+    removeBar(r0: number, c0: number, r1: number, c1: number) {
+        for (let i = 0; i < this.bars.length; i++) {
+            const b = this.bars[i];
+            const sameDirect = b.r1 === r0 && b.c1 === c0 && b.r2 === r1 && b.c2 === c1;
+            const sameReverse = b.r1 === r1 && b.c1 === c1 && b.r2 === r0 && b.c2 === c0;
+            if (sameDirect || sameReverse) {
+                this.bars.splice(i, 1);
+                break;
             }
         }
     }

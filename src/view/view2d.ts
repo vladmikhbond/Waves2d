@@ -1,36 +1,44 @@
 import Space from "../models/space.js";
-import {Node} from "../models/space.js";
-
 import { zScale } from "../controller/controller.js";   
 
-const canvas = (document.getElementById("canvas") as HTMLCanvasElement)!;
-const time = (document.getElementById("time") as HTMLSpanElement)!;
+let canvas2d: HTMLCanvasElement;
+let time: HTMLSpanElement;
 
-const ctx = canvas.getContext("2d")!;
-const iData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const data = iData.data 
+let ctx: CanvasRenderingContext2D;
+let iData: ImageData;
+let data: ImageDataArray;
 
+export function init2d() {
+    canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
+    time = (document.getElementById("time") as HTMLSpanElement)!;
 
+    ctx = canvas2d.getContext("2d")!;
+    iData = ctx.getImageData(0, 0, canvas2d.width, canvas2d.height);
+    data = iData.data 
 
-// fill the blue channel
-for (let y = 0; y < canvas.height; y++) {
-    for (let x = 0; x < canvas.width; x++) {
-        color(x, y, 255, 2); // b
+    // fill the blue channel
+    for (let y = 0; y < canvas2d.height; y++) {
+        for (let x = 0; x < canvas2d.width; x++) {
+            color(x, y, 255, 2); // b
+        }
     }
+    ctx.putImageData(iData, 0, 0);
 }
-ctx.putImageData(iData, 0, 0);
+
+
+
 
 // 
 function color(x: number, y: number, depth: number, channel: number) {
-    let i1 = (y * canvas.width + x) * 4 + channel;
+    let i1 = (y * canvas2d.width + x) * 4 + channel;
     let i2 = i1 + 4;
-    let i3 = i1 + canvas.width * 4;
+    let i3 = i1 + canvas2d.width * 4;
     let i4 = i3 + 4;
     data[i1] = data[i2] = data[i3] = data[i4] = depth;
 }
 
 
-export function show(space: Space, n_vis: number ) {
+export function show2d(space: Space, n_vis: number ) {
     // draw nodes as ImageData
     const n = space.nodes.length;
     let beg = (n - n_vis) / 2, end = (n + n_vis) / 2;
@@ -63,7 +71,7 @@ export function show(space: Space, n_vis: number ) {
 }
 
 // in canvas coords
-export function grayLine(x1: number, y1: number, x2: number, y2: number) {
+export function grayLine2d(x1: number, y1: number, x2: number, y2: number) {
     ctx.strokeStyle = "lightgray";
     ctx.beginPath();
     ctx.moveTo(x1, y1);
