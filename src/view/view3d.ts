@@ -137,8 +137,8 @@ function updateOscillators(space: Space, n_vis: number) {
     for (const o of space.oscillators) {
         const sphere = new THREE.Mesh(sphereGeom, sphereMat);
         let x = o.c - beg - n_vis / 2 + 0.5;
-        let z = o.r - beg - n_vis / 2 + 0.5;
-        sphere.position.set(x, o.a * 3, -z);
+        let z = -(o.r - beg - n_vis / 2 + 0.5);
+        sphere.position.set(x, o.a * 3, z);
 
         oscGroup.add(sphere);
     }

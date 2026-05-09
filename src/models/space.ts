@@ -4,14 +4,19 @@ import Bar from "../models/bar.js";
 export class Node {
     z = 0
     v = 0
+    l = 0
     stone = false;
+
+    constructor(loss: number) {
+        this.l = loss;
+    }
 }
 
 export default class Space 
 {
     k_m = 50/100    // жорсткість / маса
     time = 0        // такти часу
-    loss = 0.99     // коеф. втрат
+
     nodes: Node[][] = []
     oscillators: Oscillator[] = []
     bars: Bar[] = []
@@ -19,16 +24,31 @@ export default class Space
     zMax: number = 0;
 
 
-    constructor(n: number, k_m: number, loss: number) {
+    constructor(n: number, n_vis:number, k_m: number, loss: number) {
         this.k_m = k_m;
-        this.loss = loss;
+        // вузли 
         this.nodes = new Array(n);
         for (let i = 0; i < n; i++) {
             this.nodes[i] = new Array(n);
             for (let j = 0; j < n; j++) {
-                this.nodes[i][j] = new Node();
+                this.nodes[i][j] = new Node(loss);
             }
         }
+        // поглиначі
+        const len = (n - n_vis) / 2, d = 0.1/len;
+        for (let i = 0; i < len; i++) {
+            frame(this, i, 0.1 * i / len)             
+        }
+
+        function frame(me: Space, no: number, loss: number) {
+            for (let i = no; i < n - no; i++) {
+                me.nodes[no][i].l = loss;
+                me.nodes[n - no - 1][i].l = loss;
+                me.nodes[i][no].l = loss;
+                me.nodes[i][n - no - 1].l = loss;   
+            }
+        }
+
     }
 
     addOscillator(osc: Oscillator) {
@@ -67,7 +87,8 @@ export default class Space
                          4 * this.nodes[r][c].z;
                 let a = this.k_m * dz;
                 this.nodes[r][c].v += a;
-                this.nodes[r][c].v *= this.loss;
+                // втрати
+                this.nodes[r][c].v *= (1 - this.nodes[r][c].l);
             }
         }
         // вузли
@@ -78,6 +99,8 @@ export default class Space
                     this.nodes[r][c].z = 0;
             }
         }
+
+
 
         // осцилятори
         for (let o of this.oscillators) {

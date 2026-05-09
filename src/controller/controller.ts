@@ -80,7 +80,7 @@ export default class Controller {
         
 
         document.addEventListener("keydown", (e: KeyboardEvent) => {
-            if (e.key == " ") {
+            if (e.key == "s") {
                 this.stop();
                 this.step();
             }
@@ -98,7 +98,7 @@ export default class Controller {
         this.space.step();  
         show(this.space, n_vis);
         // stop when limit
-        if (this.space.nodes[1][1].z > 0.001) {
+        if (this.space.nodes[1][1].z > 1e-4) {
             this.stop(); 
             console.log(this.space.nodes[1][1].z)
         }
@@ -251,7 +251,7 @@ export function createSpace() {
     const k_m = eval((document.getElementById("k_m") as HTMLInputElement)!.value);
     const l = +(document.getElementById("l") as HTMLInputElement)!.value;
     stop();
-    return new Space(n, k_m, l);
+    return new Space(n, n_vis, k_m, l);
 }
 
 
