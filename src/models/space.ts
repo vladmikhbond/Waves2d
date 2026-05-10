@@ -21,8 +21,6 @@ export default class Space
     oscillators: Oscillator[] = []
     bars: Bar[] = []
 
-    zMax: number = 0;
-
 
     constructor(n: number, n_vis:number, k_m: number, loss: number) {
         this.k_m = k_m;
@@ -53,10 +51,9 @@ export default class Space
 
     addOscillator(osc: Oscillator) {
         this.oscillators.push(osc);
-        if (this.zMax < osc.a) this.zMax = osc.a;
     }
 
-    removeOscillatorAt(r: number, c: number) {
+    removeOscillator(r: number, c: number) {
         for (let i = 0; i < this.oscillators.length; i++) {
             let o = this.oscillators[i];
             if (Math.hypot(o.c - c, o.r - r) <= 4) {
@@ -65,14 +62,50 @@ export default class Space
         }
     }
 
+    addBar(bar: Bar) {
+        this.bars.push(bar);
+        this.throwStones();
+    }
+
+
     removeBar(r0: number, c0: number, r1: number, c1: number) {
+        
         for (let i = 0; i < this.bars.length; i++) {
-            const b = this.bars[i];
-            const sameDirect = b.r1 === r0 && b.c1 === c0 && b.r2 === r1 && b.c2 === c1;
-            const sameReverse = b.r1 === r1 && b.c1 === c1 && b.r2 === r0 && b.c2 === c0;
-            if (sameDirect || sameReverse) {
+            const bar = this.bars[i];
+            if (Math.hypot(bar.c2 - c0, bar.r2 - r0) <= 4 && bar.c1 - c1, bar.r1 - r1 <= 4 || 
+                Math.hypot(bar.c2 - c1, bar.r2 - r1) <= 4 && bar.c1 - c0, bar.r1 - r0 <= 4 ) {
                 this.bars.splice(i, 1);
                 break;
+            }
+        }
+        this.throwStones();
+    }
+
+    throwStones() {
+        let n = this.nodes.length;
+
+        for (let r = 0; r < n - 1; r++) {
+            for (let c = 0; c < n - 1; c++) {
+                this.nodes[r][c].stone = false
+            }
+        }
+
+        for (let bar of this.bars) {
+            let c1 = bar.c1, c0 = bar.c2, r1 = bar.r1, r0 = bar.r2;
+            if (Math.abs(c1 - c0) < Math.abs(r1 - r0)) {
+                if (r1 < r0)
+                    [r0, r1, c0, c1] = [r1, r0, c1, c0];
+                for (let r = r0; r <= r1; r++) {
+                    let c = (r - r0) * (c1 - c0) / (r1 - r0) + c0 | 0;
+                    this.nodes[r][c].stone = true;
+                }
+            } else {
+                if (c1 < c0)
+                    [r0, r1, c0, c1] = [r1, r0, c1, c0];
+                for (let c = c0; c <= c1; c++) {
+                    let r = (c - c0) * (r1 - r0) / (c1 - c0) + r0 | 0;
+                    this.nodes[r][c].stone = true;
+                }
             }
         }
     }
@@ -99,9 +132,6 @@ export default class Space
                     this.nodes[r][c].z = 0;
             }
         }
-
-
-
         // осцилятори
         for (let o of this.oscillators) {
             this.nodes[o.r][o.c].z = o.next_z();

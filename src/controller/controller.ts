@@ -125,7 +125,6 @@ export default class Controller {
         
         let c0 = 0, r0 = 0, x0 = 0, y0 = 0, mousedown = false;
 
-
         canvas.addEventListener("mousedown", (e) => {
             x0 = e.offsetX;
             y0 = e.offsetY;
@@ -134,7 +133,8 @@ export default class Controller {
             //
             if (this.state == State.Test) {
                 let node = this.space.nodes[r0][c0];
-                document.getElementById("info")!.innerHTML = `v:${node.v} z:${node.z} r: ${r0} c:${c0}`;
+                document.getElementById("info")!.innerHTML = 
+                    `v:${node.v.toFixed(5)} z:${node.z.toFixed(5)} x: ${x0} y:${y0}`;
             }
             mousedown = true;
         });
@@ -144,6 +144,9 @@ export default class Controller {
                 show(this.space, n_vis);
                 grayLine(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale); 
             }
+            // show position
+            document.getElementById("info")!.innerHTML = `${e.offsetX}, ${e.offsetY}`;
+
         });
 
         canvas.addEventListener("mouseup", (e: MouseEvent) => {
@@ -151,22 +154,22 @@ export default class Controller {
             const c1 = (e.offsetX / scale + beg) | 0;
             const r1 = (e.offsetY / scale  + beg) | 0;
             if (this.state == State.Osc) {
-                this.addOscillators(r0, r1, c0, c1, e.altKey);                                
+                this.changeOscillators(r0, r1, c0, c1, e.altKey);                                
             } else if (this.state == State.Stone) {
-                this.addStones(r0, r1, c0, c1, e.altKey);                                
+                this.changeBars(r0, r1, c0, c1, e.altKey);                                
             } 
             show(this.space, n_vis);
         });
     }
 
-    addOscillators(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
+    changeOscillators(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
     {
         let lambda = 1 / +(document.getElementById("lambda") as HTMLInputElement).value;
         let ampl = 1;
 
         if (c0 == c1 && r0 == r1) {
             if (altKey) {
-                this.space.removeOscillatorAt(r1, c1);
+                this.space.removeOscillator(r1, c1);
             } else {
                 this.space.addOscillator(new Oscillator(r0, c0, ampl, lambda));
             }
@@ -179,7 +182,7 @@ export default class Controller {
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
                 if (altKey) {
-                    this.space.removeOscillatorAt(r, c);
+                    this.space.removeOscillator(r, c);
                 } else {
                     this.space.addOscillator(new Oscillator(r, c, 2 * ampl/(r1 - r0 + 1), lambda));
                 }
@@ -190,7 +193,7 @@ export default class Controller {
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
                 if (altKey) {
-                    this.space.removeOscillatorAt(r, c);
+                    this.space.removeOscillator(r, c);
                 } else {
                     this.space.addOscillator(new Oscillator(r, c, 2 * ampl/(c1 - c0 + 1), lambda));
                 }                
@@ -198,45 +201,12 @@ export default class Controller {
         }
     }
 
-    addStones(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
+    changeBars(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
     {
         if (altKey) {
             this.space.removeBar(r0, c0, r1, c1);
         } else {
-            this.space.bars.push(new Bar(r0, c0, r1, c1));
-        }
-        
-
-        const newStoneValue = !altKey;
-        if (c0 == c1 && r0 == r1) {
-            this.space.nodes[r0][c0].stone = newStoneValue;
-            return;
-        }
-
-        if (Math.abs(c1 - c0) < Math.abs(r1 - r0)) {
-            if (r1 < r0)  
-                [r0, r1, c0, c1] = [r1, r0, c1, c0]; 
-            for (let r = r0; r <= r1; r++) {
-                let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
-                this.space.nodes[r][c-1].stone = newStoneValue;
-                this.space.nodes[r][c].stone = newStoneValue;
-                if (altKey) {
-                   this.space.nodes[r][c-2].stone = false; 
-                   this.space.nodes[r][c+1].stone = false; 
-                }
-            }
-        } else {
-            if (c1 < c0)  
-                [r0, r1, c0, c1] = [r1, r0, c1, c0];             
-            for (let c = c0; c <= c1; c++) {
-                let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
-                this.space.nodes[r-1][c].stone = newStoneValue;
-                this.space.nodes[r][c].stone = newStoneValue;
-                if (altKey) {
-                   this.space.nodes[r-2][c].stone = false; 
-                   this.space.nodes[r+1][c].stone = false; 
-                }
-            }
+            this.space.addBar(new Bar(r0, c0, r1, c1));
         }
     }
 
