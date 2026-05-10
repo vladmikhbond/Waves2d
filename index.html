@@ -23,13 +23,21 @@
 
             <input type="range" id="zScale" min="1" max="100" value="50">
             
-            <input type="radio" id="test" name="state" /> 
+            <!-- <input type="radio" id="test" name="state" /> 
             <label for="test">👓</label>                       
             <input type="radio" id="stone" name="state" /> 
             <label for="stone">⛔</label>                         
             <input type="radio" id="osc" name="state" checked />
-            <label for="osc">🔔</label>
+            <label for="osc">🔔</label> -->
+
+            <select id="state" aria-label="Select" required>
+                <option selected disabled value="">Mode</option>
+                <option value="Test">Test</option>
+                <option value="Stone">Stone</option>
+                <option value="Osc">Osc</option>
+            </select>
             <input type="text" id="lambda" value="20" title="Період - тривалість одного коливання осцілятору">
+
         </div>
 
         <canvas id="canvas2d" width="500" height="500" style="width: 1000px; height: 1000px; display:block;"></canvas>

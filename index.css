@@ -13,6 +13,9 @@ input[type=radio] {
     margin: 0;
 }
 
+select {
+    width: 150px ;
+}
 #params, #time, #info {
     font-size: large;
     margin-left: 50px;

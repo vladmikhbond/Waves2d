@@ -40,9 +40,10 @@ export default class Controller {
     }
 
     get state(): State {
-        if ((document.getElementById("osc") as HTMLInputElement).checked)
+        const state = document.getElementById("state") as HTMLInputElement;
+        if (state.value == "Osc")
             return State.Osc;
-        if ((document.getElementById("stone") as HTMLInputElement).checked)
+        if (state.value == "Stone")
             return State.Stone;
         return State.Test;        
     }

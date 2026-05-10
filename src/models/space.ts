@@ -54,9 +54,10 @@ export default class Space
     }
 
     removeOscillator(r: number, c: number) {
+        const eps = 4;
         for (let i = 0; i < this.oscillators.length; i++) {
             let o = this.oscillators[i];
-            if (Math.hypot(o.c - c, o.r - r) <= 4) {
+            if (Math.hypot(o.c - c, o.r - r) <= eps) {
                 this.oscillators.splice(i, 1);
             }
         }
@@ -68,17 +69,18 @@ export default class Space
     }
 
 
-    removeBar(r0: number, c0: number, r1: number, c1: number) {
-        
+    removeBar(r1: number, c1: number, r2: number, c2: number) {
+        const eps = 4;
         for (let i = 0; i < this.bars.length; i++) {
             const bar = this.bars[i];
-            if (Math.hypot(bar.c2 - c0, bar.r2 - r0) <= 4 && bar.c1 - c1, bar.r1 - r1 <= 4 || 
-                Math.hypot(bar.c2 - c1, bar.r2 - r1) <= 4 && bar.c1 - c0, bar.r1 - r0 <= 4 ) {
+            if (Math.hypot(bar.c2 - c1, bar.r2 - r1) <= eps && Math.hypot(bar.c1 - c2, bar.r1 - r2) <= eps || 
+                Math.hypot(bar.c2 - c2, bar.r2 - r2) <= eps && Math.hypot(bar.c1 - c1, bar.r1 - r1) <= eps ) {
                 this.bars.splice(i, 1);
+                this.throwStones();
                 break;
             }
         }
-        this.throwStones();
+        
     }
 
     throwStones() {
