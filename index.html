@@ -14,27 +14,30 @@
             <small id="params"></small><b id="time"></b> <b id="info"></b>
         </h1>
         <div>
-            k/m: <input type="text" id="k_m" value="5/10" >
-            loss: <input type="text" id="l" value="0.01" >
+            k/m: <input type="text" id="k_m" value="0.5" title="0 < k/m <= 1/2">
+            loss: <input type="text" id="loss" value="0.01" >
             
             <button id="resetButton" title="Clear">C</button>
             <button id="runButton" title="Run | Stop">Run</button>
-            <button id="dButton" title="2d | 3d">D</button>
+            <button id="dButton" title="2d | 3d">3d</button>
 
             <input type="range" id="zScale" min="1" max="100" value="50">
 
             <select id="state" aria-label="Select" required>
-                <option selected disabled value="">Mode</option>
-                <option value="Test">Test</option>
-                <option value="Stone">Stone</option>
-                <option value="Osc">Oscil</option>
+                <option value="Inf" selected >Inf</option>
+                <option value="Sto">Sto</option>
+                <option value="Osc">Osc</option>
+                <option value="Del">Del</option>
             </select>
-            <input type="text" id="lambda" value="20" title="Період - тривалість одного коливання осцілятору">
+            
+            <input type="text" id="lambda" value="20" style="display: none;"  
+                   title="Період - тривалість одного коливання осцілятора">
 
         </div>
-
-        <canvas id="canvas2d" width="500" height="500" style="width: 1000px; height: 1000px; display:block;"></canvas>
-        <canvas id="canvas3d" width="500" height="500" style="width: 1000px; height: 1000px; display: none;"></canvas>
+        <div class="canvas-frame">
+            <canvas id="canvas2d" width="500" height="500" style="width: 1000px; height: 1000px;"></canvas>
+            <canvas id="canvas3d" width="500" height="500" style="width: 1000px; height: 1000px; display: none;"></canvas>
+        </div>
     </main>
     <script type="module" src="main.js"></script>
 </body>

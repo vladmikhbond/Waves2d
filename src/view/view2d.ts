@@ -64,7 +64,7 @@ export function show2d(space: Space, n_vis: number ) {
         let x = o.c - beg;
         let y = o.r - beg;
         ctx.fillStyle = "red";
-        ctx.fillRect(x-1, y-1, 2, 2);
+        ctx.fillRect(x-1.5, y-1.5, 3, 3);
     }
     //
     time.innerHTML = space.time.toString()
@@ -78,3 +78,16 @@ export function grayLine2d(x1: number, y1: number, x2: number, y2: number) {
     ctx.lineTo(x2, y2);
     ctx.stroke();
 }
+
+
+export function grayRect2d(x1: number, y1: number, x2: number, y2: number) {
+    ctx.strokeStyle = "lightgray";
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+}
+
+
+
+export function clearCanvas2d() {
+    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+}
+

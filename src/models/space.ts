@@ -14,7 +14,9 @@ export class Node {
 
 export default class Space 
 {
-    k_m = 50/100    // жорсткість / маса
+    n = 0
+    n_vis = 0
+    k_m = 0       // жорсткість / маса
     time = 0        // такти часу
 
     nodes: Node[][] = []
@@ -23,8 +25,10 @@ export default class Space
 
 
     constructor(n: number, n_vis:number, k_m: number, loss: number) {
+        this.n = n;
+        this.n_vis = n_vis;
         this.k_m = k_m;
-        // вузли 
+        // вузли з втратою
         this.nodes = new Array(n);
         for (let i = 0; i < n; i++) {
             this.nodes[i] = new Array(n);
@@ -68,7 +72,6 @@ export default class Space
         this.throwStones();
     }
 
-
     removeBar(r1: number, c1: number, r2: number, c2: number) {
         const eps = 4;
         for (let i = 0; i < this.bars.length; i++) {
@@ -79,15 +82,24 @@ export default class Space
                 this.throwStones();
                 break;
             }
-        }
-        
+        }   
     }
 
-    throwStones() {
-        let n = this.nodes.length;
+    DeleteInRect(r1: number, c1: number, r2: number, c2: number) {
+        this.bars = this.bars.filter(b => !(
+            r1 < b.r1 && b.r1 < r2 &&     
+            c1 < b.c1 && b.c1 < c2 &&     
+            r1 < b.r2 && b.r2 < r2 &&     
+            c1 < b.c2 && b.c2 < c2 ));    
+        this.oscillators = this.oscillators.filter(o => !(
+            r1 < o.r && o.r < r2 &&     
+            c1 < o.c && o.c < c2));  
+        this.throwStones();
+    } 
 
-        for (let r = 0; r < n - 1; r++) {
-            for (let c = 0; c < n - 1; c++) {
+    throwStones() {
+        for (let r = 0; r < this.n - 1; r++) {
+            for (let c = 0; c < this.n - 1; c++) {
                 this.nodes[r][c].stone = false
             }
         }
@@ -113,10 +125,9 @@ export default class Space
     }
 
     step() {
-        let n = this.nodes.length;
         // швидкості
-        for (let r = 1; r < n - 1; r++) {
-            for (let c = 1; c < n - 1; c++) {
+        for (let r = 1; r < this.n - 1; r++) {
+            for (let c = 1; c < this.n - 1; c++) {
                 let dz = this.nodes[r-1][c].z + this.nodes[r+1][c].z +
                          this.nodes[r][c-1].z + this.nodes[r][c+1].z -
                          4 * this.nodes[r][c].z;
@@ -127,8 +138,8 @@ export default class Space
             }
         }
         // вузли
-        for (let r = 1; r < n - 1; r++) {
-            for (let c = 1; c < n - 1; c++) {
+        for (let r = 1; r < this.n - 1; r++) {
+            for (let c = 1; c < this.n - 1; c++) {
                 this.nodes[r][c].z += this.nodes[r][c].v;
                 if (this.nodes[r][c].stone) 
                     this.nodes[r][c].z = 0;
@@ -143,4 +154,13 @@ export default class Space
         this.time++;
     }
 
+    set loss(l: number) {
+        const beg = (this.n - this.n_vis) / 2, end = beg + this.n_vis;
+        for(let r = beg; r < end; r++) {
+            for(let c = beg; c < end; c++) {
+                 this.nodes[r][c].l = l; 
+            }
+        }
+
+    }
 }

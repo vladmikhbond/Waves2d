@@ -2,8 +2,8 @@
 import Oscillator from "../models/oscillator.js";
 import Space from "../models/space.js";
 
-import { init3d, show3d, grayLine3d} from "../view/view3d.js";
-import { init2d, show2d, grayLine2d} from "../view/view2d.js";
+import { init3d, show3d} from "../view/view3d.js";
+import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
 
 const n = 900;      // total area
@@ -16,13 +16,12 @@ const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
 
 let show = show2d;
-let grayLine = grayLine2d;
 
 // показує розмір простору
 document.getElementById("params")!.innerHTML = `${n_vis}/${n}`
 
 enum State {
-    Test, Osc, Stone
+    Inf, Osc, Sto, Del
 }
 
 enum ViewMode {
@@ -38,19 +37,22 @@ export default class Controller {
         this.space = createSpace();
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
-        this.addMouseListeners(canvas3d);
+        // this.addMouseListeners(canvas3d);
         init2d();
         init3d();
         show(this.space, n_vis);
     }
 
-    get state(): State {
-        const state = document.getElementById("state") as HTMLInputElement;
-        if (state.value == "Osc")
-            return State.Osc;
-        if (state.value == "Stone")
-            return State.Stone;
-        return State.Test;        
+    get state(): State 
+    {
+        const stateElem = document.getElementById("state") as HTMLInputElement;
+        
+        switch(stateElem.value) {
+            case "Osc": return State.Osc;
+            case "Sto": return State.Sto;
+            case "Del": return State.Del;
+            default: return State.Inf;           
+        }       
     }
 
 
@@ -70,36 +72,47 @@ export default class Controller {
 
         document.getElementById("dButton")!.addEventListener("click", (e) => {
             if (this.viewMode == ViewMode.Two) {
-                this.viewMode = ViewMode.Three;
-                //(e.target as HTMLElement)!.innerHTML = "2d";
+                // switch to 3d
+                this.viewMode = ViewMode.Three;  
                 show = show3d;
-                grayLine = grayLine3d;
+                clearCanvas2d();
+                canvas3d.style.display = "block";
+                (e.target as HTMLButtonElement)!.innerHTML = "2d";
             } else {
+                // switch to 2d
                 this.viewMode = ViewMode.Two;
-                //(e.target as HTMLElement)!.innerHTML = "3d";  
                 show = show2d;
-                grayLine = grayLine2d;
-            
+                canvas3d.style.display = "none";
+                (e.target as HTMLButtonElement)!.innerHTML = "3d";  
             }
             show(this.space, n_vis);
         });
             
-
-
-        
-
-        document.addEventListener("keydown", (e: KeyboardEvent) => {
-            if (e.key == "s") {
-                this.stop();
-                this.step();
-            }
-        });
 
         document.getElementById("zScale")!.addEventListener("change", (e) => {
             zScale = +(e.target as HTMLInputElement).value;
             show(this.space, n_vis);
         });
 
+        document.getElementById("state")!.addEventListener("change", (e) => {
+            document.getElementById("lambda")!.style.display = 
+               this.state == State.Osc ? "inline" : "none";
+        });
+        
+        document.getElementById("k_m")!.addEventListener("change", (e) => {
+            this.space.k_m = +(e.target as HTMLInputElement).value;
+        });
+        
+        document.getElementById("loss")!.addEventListener("change", (e) => {
+            this.space.loss = +(e.target as HTMLInputElement).value
+        });
+        
+        document.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key == "s") {
+                this.stop();
+                this.step();
+            }
+        });    
         
     }
 
@@ -140,7 +153,7 @@ export default class Controller {
             c0 = (e.offsetX / scale + beg) | 0;
             r0 = (e.offsetY / scale  + beg) | 0;
             //
-            if (this.state == State.Test) {
+            if (this.state == State.Inf) {
                 let node = this.space.nodes[r0][c0];
                 document.getElementById("info")!.innerHTML = 
                     `v:${node.v.toFixed(5)} z:${node.z.toFixed(5)} x: ${x0} y:${y0}`;
@@ -148,40 +161,50 @@ export default class Controller {
             mousedown = true;
         });
 
+
         canvas.addEventListener("mousemove", (e) => {
             if (mousedown) {
                 show(this.space, n_vis);
-                grayLine(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale); 
+                if (this.viewMode == ViewMode.Three) {
+                    clearCanvas2d();
+                } 
+                if (this.state == State.Del) {
+                    grayRect2d(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale);
+                } else {
+                    grayLine2d(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale); 
+                }
             }
-            // show position
+            // show mouse position
             document.getElementById("info")!.innerHTML = `${e.offsetX}, ${e.offsetY}`;
-
         });
+
 
         canvas.addEventListener("mouseup", (e: MouseEvent) => {
             mousedown = false;
             const c1 = (e.offsetX / scale + beg) | 0;
             const r1 = (e.offsetY / scale  + beg) | 0;
             if (this.state == State.Osc) {
-                this.changeOscillators(r0, r1, c0, c1, e.altKey);                                
-            } else if (this.state == State.Stone) {
-                this.changeBars(r0, r1, c0, c1, e.altKey);                                
+                this.addOscillators(r0, c0, r1, c1);                                
+            } else if (this.state == State.Sto) {
+                this.addBars(r0, c0, r1, c1);                                
+            } else if (this.state == State.Del) {
+                this.space.DeleteInRect(r0, c0, r1, c1);                                
             } 
+            // show
             show(this.space, n_vis);
+            if (this.viewMode == ViewMode.Three) {
+                clearCanvas2d();
+            } 
         });
     }
 
-    changeOscillators(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
+    addOscillators(r0:number, c0:number, r1:number, c1: number) 
     {
         let lambda = 1 / +(document.getElementById("lambda") as HTMLInputElement).value;
         let ampl = 1;
 
         if (c0 == c1 && r0 == r1) {
-            if (altKey) {
-                this.space.removeOscillator(r1, c1);
-            } else {
-                this.space.addOscillator(new Oscillator(r0, c0, ampl, lambda));
-            }
+            this.space.addOscillator(new Oscillator(r0, c0, ampl, lambda));
             return;
         }
 
@@ -190,33 +213,21 @@ export default class Controller {
                 [r0, r1, c0, c1] = [r1, r0, c1, c0]; 
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
-                if (altKey) {
-                    this.space.removeOscillator(r, c);
-                } else {
-                    this.space.addOscillator(new Oscillator(r, c, 2 * ampl/(r1 - r0 + 1), lambda));
-                }
+                this.space.addOscillator(new Oscillator(r, c, ampl/2, lambda));
             }
         } else {
             if (c1 < c0)  
                 [r0, r1, c0, c1] = [r1, r0, c1, c0];             
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
-                if (altKey) {
-                    this.space.removeOscillator(r, c);
-                } else {
-                    this.space.addOscillator(new Oscillator(r, c, 2 * ampl/(c1 - c0 + 1), lambda));
-                }                
+                this.space.addOscillator(new Oscillator(r, c, ampl/2, lambda));             
             }
         }
     }
 
-    changeBars(r0:number, r1:number, c0:number, c1: number, altKey: boolean) 
+    addBars(r0:number, c0:number, r1:number, c1: number) 
     {
-        if (altKey) {
-            this.space.removeBar(r0, c0, r1, c1);
-        } else {
-            this.space.addBar(new Bar(r0, c0, r1, c1));
-        }
+        this.space.addBar(new Bar(r0, c0, r1, c1));
     }
 
 //#endregion
@@ -240,8 +251,8 @@ function parseRatio(value: string) {
 }
 
 export function createSpace() {
-    const k_m = parseRatio((document.getElementById("k_m") as HTMLInputElement)!.value);
-    const l = +(document.getElementById("l") as HTMLInputElement)!.value;
+    const k_m = +(document.getElementById("k_m") as HTMLInputElement)!.value;
+    const l = +(document.getElementById("loss") as HTMLInputElement)!.value;
     stop();
     return new Space(n, n_vis, k_m, l);
 }
