@@ -10,7 +10,7 @@
 <body>
     <main class="container">
         <h1>
-            Vawes 
+            Vawes 2026 
             <small id="params"></small><b id="time"></b> <b id="info"></b>
         </h1>
         <div>
@@ -22,19 +22,12 @@
             <button id="dButton" title="2d | 3d">D</button>
 
             <input type="range" id="zScale" min="1" max="100" value="50">
-            
-            <!-- <input type="radio" id="test" name="state" /> 
-            <label for="test">👓</label>                       
-            <input type="radio" id="stone" name="state" /> 
-            <label for="stone">⛔</label>                         
-            <input type="radio" id="osc" name="state" checked />
-            <label for="osc">🔔</label> -->
 
             <select id="state" aria-label="Select" required>
                 <option selected disabled value="">Mode</option>
                 <option value="Test">Test</option>
                 <option value="Stone">Stone</option>
-                <option value="Osc">Osc</option>
+                <option value="Osc">Oscil</option>
             </select>
             <input type="text" id="lambda" value="20" title="Період - тривалість одного коливання осцілятору">
 
@@ -43,13 +36,6 @@
         <canvas id="canvas2d" width="500" height="500" style="width: 1000px; height: 1000px; display:block;"></canvas>
         <canvas id="canvas3d" width="500" height="500" style="width: 1000px; height: 1000px; display: none;"></canvas>
     </main>
-    <script type="importmap">
-    {
-      "imports": {
-        "three": "/node_modules/three/build/three.module.js"
-      }
-    }
-    </script>
-    <script type="module" src="dist/main.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>

@@ -64,7 +64,7 @@ export function show2d(space: Space, n_vis: number ) {
         let x = o.c - beg;
         let y = o.r - beg;
         ctx.fillStyle = "red";
-        ctx.fillRect(x-1, y-1, 3, 3);
+        ctx.fillRect(x-1, y-1, 2, 2);
     }
     //
     time.innerHTML = space.time.toString()

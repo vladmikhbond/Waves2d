@@ -1,4 +1,12 @@
+---- налагодження
+npm run build
+переконатися, що npm run serve працює
+Запустити відлагодження через launch.json
 
 
 
-точка виміру в режимі спостереж
+-----------Встановлення на nginx (запит: https://tss.co.ua/waves2d/dist/)
+
+scp -r "C:\Git\TS\Waves2d\dist" vmbo@192.168.0.101:/tmp/
+ssh vmbo@192.168.0.101 
+sudo mv /tmp/dist /var/www/html/waves2d/

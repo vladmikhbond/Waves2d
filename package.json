@@ -4,7 +4,8 @@
   "description": "TypeScript application",
   "main": "main.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "node scripts/build.js",
+    "serve": "npx live-server dist --port=5500",
     "start": "npx live-server . --port=5500",
     "dev": "ts-node src/main.ts"
   },

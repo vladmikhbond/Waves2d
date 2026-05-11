@@ -25,9 +25,14 @@ enum State {
     Test, Osc, Stone
 }
 
+enum ViewMode {
+    Two, Three
+}
+
 export default class Controller {
     space: Space;
     timer: ReturnType<typeof setInterval> | 0 = 0;
+    viewMode: ViewMode = ViewMode.Two;
 
     constructor() {
         this.space = createSpace();
@@ -63,20 +68,23 @@ export default class Controller {
             else this.run();
         });
 
-        document.getElementById("dButton")!.addEventListener("click", () => {
-            if (canvas2d.style.display == "block") {
+        document.getElementById("dButton")!.addEventListener("click", (e) => {
+            if (this.viewMode == ViewMode.Two) {
+                this.viewMode = ViewMode.Three;
+                //(e.target as HTMLElement)!.innerHTML = "2d";
                 show = show3d;
                 grayLine = grayLine3d;
-                canvas2d.style.display = "none";
-                canvas3d.style.display = "block";                
             } else {
+                this.viewMode = ViewMode.Two;
+                //(e.target as HTMLElement)!.innerHTML = "3d";  
                 show = show2d;
                 grayLine = grayLine2d;
-                canvas2d.style.display = "block";
-                canvas3d.style.display = "none";                
+            
             }
             show(this.space, n_vis);
         });
+            
+
 
         
 
@@ -218,8 +226,21 @@ export default class Controller {
 
 // ------------------------- free func ------------------------------
 
+function parseRatio(value: string) {
+    const parts = value.split("/").map((v) => v.trim());
+    if (parts.length === 2) {
+        const numerator = parseFloat(parts[0]);
+        const denominator = parseFloat(parts[1]);
+        if (!Number.isNaN(numerator) && !Number.isNaN(denominator) && denominator !== 0) {
+            return numerator / denominator;
+        }
+    }
+    const result = parseFloat(value);
+    return Number.isFinite(result) ? result : 0;
+}
+
 export function createSpace() {
-    const k_m = eval((document.getElementById("k_m") as HTMLInputElement)!.value);
+    const k_m = parseRatio((document.getElementById("k_m") as HTMLInputElement)!.value);
     const l = +(document.getElementById("l") as HTMLInputElement)!.value;
     stop();
     return new Space(n, n_vis, k_m, l);
