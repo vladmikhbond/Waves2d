@@ -1,5 +1,5 @@
 
-import Oscillator from "../models/oscillator.js";
+import {Oscillator, Mono} from "../models/oscillator.js";
 import Space from "../models/space.js";
 
 import { init3d, show3d} from "../view/view3d.js";
@@ -21,7 +21,7 @@ let show = show2d;
 document.getElementById("params")!.innerHTML = `${n_vis}/${n}`
 
 enum State {
-    Inf, Osc, Sto, Del
+    Inf, Osc, Mon, Sto, Del
 }
 
 enum ViewMode {
@@ -37,7 +37,6 @@ export default class Controller {
         this.space = createSpace();
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
-        // this.addMouseListeners(canvas3d);
         init2d();
         init3d();
         show(this.space, n_vis);
@@ -50,6 +49,7 @@ export default class Controller {
         switch(stateElem.value) {
             case "Osc": return State.Osc;
             case "Sto": return State.Sto;
+            case "Mon": return State.Mon;            
             case "Del": return State.Del;
             default: return State.Inf;           
         }       
@@ -95,8 +95,9 @@ export default class Controller {
         });
 
         document.getElementById("state")!.addEventListener("change", (e) => {
-            document.getElementById("lambda")!.style.display = 
-               this.state == State.Osc ? "inline" : "none";
+            let b = this.state == State.Osc || this.state == State.Mon;
+            (document.getElementById("oscill_ampl") as HTMLSelectElement).disabled = !b;
+            (document.getElementById("oscill_q") as HTMLSelectElement).disabled = !b;
         });
         
         document.getElementById("k_m")!.addEventListener("change", (e) => {
@@ -183,7 +184,7 @@ export default class Controller {
             mousedown = false;
             const c1 = (e.offsetX / scale + beg) | 0;
             const r1 = (e.offsetY / scale  + beg) | 0;
-            if (this.state == State.Osc) {
+            if (this.state == State.Osc || this.state == State.Mon) {
                 this.addOscillators(r0, c0, r1, c1);                                
             } else if (this.state == State.Sto) {
                 this.addBars(r0, c0, r1, c1);                                
@@ -200,11 +201,14 @@ export default class Controller {
 
     addOscillators(r0:number, c0:number, r1:number, c1: number) 
     {
-        let lambda = 1 / +(document.getElementById("lambda") as HTMLInputElement).value;
-        let ampl = 1;
+        let ampl = +(document.getElementById("oscill_ampl")! as HTMLInputElement).value;
+        let q = +(document.getElementById("oscill_q")! as HTMLInputElement).value;
 
         if (c0 == c1 && r0 == r1) {
-            this.space.addOscillator(new Oscillator(r0, c0, ampl, lambda));
+            let osc = this.state == State.Osc ? 
+                    new Oscillator(r0, c0, ampl, q, this.space) : 
+                    new Mono(r0, c0, ampl, q, this.space)
+            this.space.addOscillator(osc);
             return;
         }
 
@@ -213,14 +217,20 @@ export default class Controller {
                 [r0, r1, c0, c1] = [r1, r0, c1, c0]; 
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
-                this.space.addOscillator(new Oscillator(r, c, ampl/2, lambda));
+                let osc = this.state == State.Osc ? 
+                    new Oscillator(r, c, ampl/2, q, this.space) : 
+                    new Mono(r, c, ampl/2, q, this.space)
+                this.space.addOscillator(osc);
             }
         } else {
             if (c1 < c0)  
                 [r0, r1, c0, c1] = [r1, r0, c1, c0];             
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
-                this.space.addOscillator(new Oscillator(r, c, ampl/2, lambda));             
+                let osc = this.state == State.Osc ? 
+                    new Oscillator(r, c, ampl/2, q, this.space) : 
+                    new Mono(r, c, ampl/2, q, this.space)
+                this.space.addOscillator(osc);             
             }
         }
     }

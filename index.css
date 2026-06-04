@@ -4,10 +4,9 @@ canvas {
 
 input[type=text] {
     width: 80px ;
-    padding: 10px;
 }
 input[type=range] {
-    width: 200px ;
+    width: 400px ;
 }
 input[type=radio] {
     margin: 0;

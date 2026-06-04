@@ -1,4 +1,4 @@
-import Oscillator from "../models/oscillator.js";
+import {Oscillator, Mono} from "../models/oscillator.js";
 import Bar from "../models/bar.js";
 
 export class Node {
@@ -147,7 +147,7 @@ export default class Space
         }
         // осцилятори
         for (let o of this.oscillators) {
-            this.nodes[o.r][o.c].z = o.next_z();
+            this.nodes[o.r][o.c].z = o.next_s();
         }
     
         // час 

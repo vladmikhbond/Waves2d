@@ -1,17 +1,17 @@
 {
-  "name": "waves1d",
+  "name": "waves2d",
   "version": "0.0.1",
   "description": "TypeScript application",
   "main": "main.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "serve": "npx live-server dist --port=5500",
-    "start": "npx live-server . --port=5500",
-    "dev": "ts-node src/main.ts"
+    "start": "node scripts/build.js && npx live-server dist --port=5502"
   },
+
   "keywords": [],
   "author": "",
   "license": "MIT",
+
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/three": "^0.184.1",
