@@ -68,8 +68,8 @@ function createBarMesh(start: THREE.Vector3, end: THREE.Vector3) {
     return bar;
 }
 
-function createGrid(n_vis: number) {
-    const geometry = new THREE.PlaneGeometry(n_vis, n_vis, n_vis - 1, n_vis - 1);
+function createGrid(n: number) {
+    const geometry = new THREE.PlaneGeometry(n, n, n - 1, n - 1);
     geometry.rotateX(Math.PI / 2);
 
     const material = new THREE.MeshStandardMaterial({
@@ -86,7 +86,7 @@ function createGrid(n_vis: number) {
     scene.add(mesh);
 
     positions = geometry.attributes.position.array as Float32Array;
-    nVisCurrent = n_vis;
+    nVisCurrent = n;
 }
 
 function updateSurface(space: Space) {
@@ -114,15 +114,14 @@ function updateSurface(space: Space) {
 }
 
 function updateBars(space: Space) {
-    const n = space.n;
-
     barsGroup.clear();
+    const n2 = space.n / 2;
 
     for (const b of space.bars) {
-        const x1 = b.c1 + 0.5;
-        const z1 = -(b.r1 + 0.5);
-        const x2 = b.c2 + 0.5;
-        const z2 = -(b.r2 + 0.5);
+        const x1 = b.c1 - n2 + 0.5;
+        const z1 = -(b.r1 - n2 + 0.5);
+        const x2 = b.c2 - n2 + 0.5;
+        const z2 = -(b.r2 - n2 + 0.5);
 
         const start = new THREE.Vector3(x1, 0, z1);
         const end = new THREE.Vector3(x2, 0, z2);
@@ -132,14 +131,14 @@ function updateBars(space: Space) {
 
 function updateOscillators(space: Space) {
     oscGroup.clear();
-
+    const n2 = space.n / 2;
     const sphereGeom = new THREE.SphereGeometry(3, 10, 10);
     const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
 
     for (const o of space.oscillators) {
         const sphere = new THREE.Mesh(sphereGeom, sphereMat);
-        let x = o.c + 0.5;
-        let z = -(o.r + 0.5);
+        let x = o.c - n2 + 0.5;
+        let z = -(o.r - n2 + 0.5);
         sphere.position.set(x, o.amp * 3, z);
 
         oscGroup.add(sphere);
