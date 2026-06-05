@@ -6,7 +6,6 @@ import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/vi
 import Bar from "../models/bar.js";
 import {size, margin} from "../main.js"
 
-const beg = size + margin;
 export let zScale = 50;
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
@@ -145,30 +144,34 @@ export default class Controller {
 
 
         canvas.addEventListener("mousemove", (e) => {
+            const c0 = x0 / scale;
+            const r0 = y0 / scale;            
+            const c = e.offsetX / scale;
+            const r = e.offsetY / scale;
             if (mousedown) {
                 show(this.space);
                 if (this.viewMode == ViewMode.Three) {
                     clearCanvas2d();
                 } 
                 if (this.state == State.Del) {
-                    grayRect2d(x0, y0, e.offsetX, e.offsetY);
+                    grayRect2d(c0, r0, c, r);
                 } else {
-                    grayLine2d(x0, y0, e.offsetX, e.offsetY); 
+                    grayLine2d(c0, r0, c, r); 
                 }
             }
+
             // show mouse position
-            const c = e.offsetX;
-            const r = e.offsetY;
             document.getElementById("info")!.innerHTML = 
-                    `x:${e.offsetX}, y:${e.offsetY}, z:${this.space.nodes[r][c].z}`;
+                    `r:${r}, c:${c}, z:${this.space.nodes[r][c].z}`;
         });
 
 
         canvas.addEventListener("mouseup", (e: MouseEvent) => {
-            let c0 = x0, r0 = y0;
+            const c0 = x0 / scale;
+            const r0 = y0 / scale;
+            const c1 = e.offsetX / scale;
+            const r1 = e.offsetY / scale;
             mousedown = false;
-            const c1 = e.offsetX;
-            const r1 = e.offsetY;
             if (this.state == State.Osc || this.state == State.Mon) {
                 this.addOscillators(r0, c0, r1, c1);                                
             } else if (this.state == State.Sto) {
