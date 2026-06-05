@@ -38,18 +38,18 @@ function color(x: number, y: number, depth: number, channel: number) {
 }
 
 
-export function show2d(space: Space, n_vis: number ) {
-    // draw nodes as ImageData
-    const n = space.nodes.length;
-    let beg = (n - n_vis) / 2, end = (n + n_vis) / 2;
-
-    for (let r = beg; r < end; r++) {
-        for (let c = beg; c < end; c++) {
-            let x = c - beg;
-            let y = r - beg;
-            let level =  127 + 127 * zScale * space.nodes[r][c].z | 0;
-            if (level > 255) level = 255;
-            if (level < 0) level = 0;
+export function show2d(space: Space) 
+{
+    // Draw nodes as ImageData
+    for (let r = 0; r < space.n; r++) {
+        for (let c = 0; c < space.n; c++) {
+            let x = c;
+            let y = r;
+            let level = 127 + 127 * zScale * space.nodes[r][c].z | 0;
+            if (level > 255) 
+                level = 255;
+            if (level < 0) 
+                level = 0;
             color(x, y, level, 3);
 
             if (space.nodes[r][c].stone) {
@@ -61,8 +61,8 @@ export function show2d(space: Space, n_vis: number ) {
     
     // draw oscillators
     for (let o of space.oscillators) {
-        let x = o.c - beg;
-        let y = o.r - beg;
+        let x = o.c;
+        let y = o.r;
         ctx.fillStyle = "red";
         ctx.fillRect(x-1.5, y-1.5, 3, 3);
     }

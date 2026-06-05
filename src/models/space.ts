@@ -14,40 +14,46 @@ export class Node {
 
 export default class Space 
 {
-    n = 0
-    n_vis = 0
-    k_m = 0       // жорсткість / маса
+    size: number 
+    margin: number
+
+    k_m = 0       // = k/m
     time = 0        // такти часу
 
     nodes: Node[][] = []
     oscillators: Oscillator[] = []
     bars: Bar[] = []
 
+    get n() {
+        return this.size + 2 * this.margin;
+    }
 
-    constructor(n: number, n_vis:number, k_m: number, loss: number) {
-        this.n = n;
-        this.n_vis = n_vis;
+    constructor(size: number, margin:number, k_m: number, loss: number) {
+        
+        this.size = size;
+        this.margin = margin;
+
         this.k_m = k_m;
         // вузли з втратою
-        this.nodes = new Array(n);
-        for (let i = 0; i < n; i++) {
-            this.nodes[i] = new Array(n);
-            for (let j = 0; j < n; j++) {
+        this.nodes = new Array(this.n);
+        for (let i = 0; i < this.n; i++) {
+            this.nodes[i] = new Array(this.n);
+            for (let j = 0; j < this.n; j++) {
                 this.nodes[i][j] = new Node(loss);
             }
         }
         // поглиначі
-        const len = (n - n_vis) / 2, d = 0.1/len;
+        const len = this.margin, d = 0.1/len/len;
         for (let i = 0; i < len; i++) {
-            frame(this, i, 0.1 * i / len)             
+            frame(this, i, d * i * i )             
         }
 
         function frame(me: Space, no: number, loss: number) {
-            for (let i = no; i < n - no; i++) {
+            for (let i = no; i < me.n - no; i++) {
                 me.nodes[no][i].l = loss;
-                me.nodes[n - no - 1][i].l = loss;
+                me.nodes[me.n - no - 1][i].l = loss;
                 me.nodes[i][no].l = loss;
-                me.nodes[i][n - no - 1].l = loss;   
+                me.nodes[i][me.n - no - 1].l = loss;   
             }
         }
 
@@ -125,24 +131,24 @@ export default class Space
     }
 
     step() {
+        const n = this.n;
         // швидкості
-        for (let r = 1; r < this.n - 1; r++) {
-            for (let c = 1; c < this.n - 1; c++) {
-                let dz = this.nodes[r-1][c].z + this.nodes[r+1][c].z +
+        for (let r = 1; r < n - 1; r++) {
+            for (let c = 1; c < n - 1; c++) {
+                let z = this.nodes[r-1][c].z + this.nodes[r+1][c].z +
                          this.nodes[r][c-1].z + this.nodes[r][c+1].z -
                          4 * this.nodes[r][c].z;
-                let a = this.k_m * dz;
+                let a = this.k_m * z;
                 this.nodes[r][c].v += a;
                 // втрати
                 this.nodes[r][c].v *= (1 - this.nodes[r][c].l);
             }
         }
         // вузли
-        for (let r = 1; r < this.n - 1; r++) {
-            for (let c = 1; c < this.n - 1; c++) {
-                this.nodes[r][c].z += this.nodes[r][c].v;
-                if (this.nodes[r][c].stone) 
-                    this.nodes[r][c].z = 0;
+        for (let r = 1; r < n - 1; r++) {
+            for (let c = 1; c < n - 1; c++) {               
+                if (!this.nodes[r][c].stone) 
+                    this.nodes[r][c].z += this.nodes[r][c].v;
             }
         }
         // осцилятори
@@ -155,7 +161,7 @@ export default class Space
     }
 
     set loss(l: number) {
-        const beg = (this.n - this.n_vis) / 2, end = beg + this.n_vis;
+        const beg = this.margin, end = beg + this.size;
         for(let r = beg; r < end; r++) {
             for(let c = beg; c < end; c++) {
                  this.nodes[r][c].l = l; 

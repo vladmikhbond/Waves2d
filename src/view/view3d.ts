@@ -145,7 +145,8 @@ function updateOscillators(space: Space, n_vis: number) {
 }
 
 
-export function show3d(space: Space, n_vis: number) {
+export function show3d(space: Space) {
+    const n_vis = space.size;
     updateSurface(space, n_vis);
     updateBars(space, n_vis);
     updateOscillators(space, n_vis);

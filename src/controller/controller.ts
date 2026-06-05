@@ -5,11 +5,9 @@ import Space from "../models/space.js";
 import { init3d, show3d} from "../view/view3d.js";
 import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
+import {size, margin} from "../main.js"
 
-const n = 900;      // total area
-const n_vis = 500;   // visible middle area 
-const beg = (n - n_vis) / 2 | 0;
-const scale = 2;
+const beg = size + margin;
 export let zScale = 50;
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
@@ -18,7 +16,7 @@ const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
 let show = show2d;
 
 // показує розмір простору
-document.getElementById("params")!.innerHTML = `${n_vis}/${n}`
+document.getElementById("params")!.innerHTML = `${size}/${margin}`
 
 enum State {
     Inf, Osc, Mon, Sto, Del
@@ -39,7 +37,7 @@ export default class Controller {
         this.addMouseListeners(canvas2d);
         init2d();
         init3d();
-        show(this.space, n_vis);
+        show(this.space);
     }
 
     get state(): State 
@@ -62,7 +60,7 @@ export default class Controller {
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.space = createSpace();
             this.stop();
-            show(this.space, n_vis);
+            show(this.space);
         });
 
         document.getElementById("runButton")!.addEventListener("click", () => {
@@ -85,13 +83,13 @@ export default class Controller {
                 canvas3d.style.display = "none";
                 (e.target as HTMLButtonElement)!.innerHTML = "3d";  
             }
-            show(this.space, n_vis);
+            show(this.space);
         });
             
 
         document.getElementById("zScale")!.addEventListener("change", (e) => {
             zScale = +(e.target as HTMLInputElement).value;
-            show(this.space, n_vis);
+            show(this.space);
         });
 
         document.getElementById("state")!.addEventListener("change", (e) => {
@@ -119,7 +117,7 @@ export default class Controller {
 
     step() {
         this.space.step();  
-        show(this.space, n_vis);
+        show(this.space);
         // stop when limit
         if (this.space.nodes[1][1].z > 1e-4) {
             this.stop(); 
@@ -146,44 +144,39 @@ export default class Controller {
 //#region mouse listeners
     addMouseListeners(canvas: HTMLElement) {
         
-        let c0 = 0, r0 = 0, x0 = 0, y0 = 0, mousedown = false;
+        let x0 = 0, y0 = 0, mousedown = false;
 
         canvas.addEventListener("mousedown", (e) => {
             x0 = e.offsetX;
             y0 = e.offsetY;
-            c0 = (e.offsetX / scale + beg) | 0;
-            r0 = (e.offsetY / scale  + beg) | 0;
-            //
-            if (this.state == State.Inf) {
-                let node = this.space.nodes[r0][c0];
-                document.getElementById("info")!.innerHTML = 
-                    `v:${node.v.toFixed(5)} z:${node.z.toFixed(5)} x: ${x0} y:${y0}`;
-            }
             mousedown = true;
         });
 
 
         canvas.addEventListener("mousemove", (e) => {
             if (mousedown) {
-                show(this.space, n_vis);
+                show(this.space);
                 if (this.viewMode == ViewMode.Three) {
                     clearCanvas2d();
                 } 
                 if (this.state == State.Del) {
-                    grayRect2d(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale);
+                    grayRect2d(x0, y0, e.offsetX, e.offsetY);
                 } else {
-                    grayLine2d(x0 / scale, y0 / scale, e.offsetX / scale, e.offsetY / scale); 
+                    grayLine2d(x0, y0, e.offsetX, e.offsetY); 
                 }
             }
             // show mouse position
-            document.getElementById("info")!.innerHTML = `${e.offsetX}, ${e.offsetY}`;
+            const c = e.offsetX;
+            const r = e.offsetY;
+            document.getElementById("info")!.innerHTML = `x${e.offsetX}, y${e.offsetY}, z${this.space.nodes[r][c].z}`;
         });
 
 
         canvas.addEventListener("mouseup", (e: MouseEvent) => {
+            let c0 = x0, r0 = y0;
             mousedown = false;
-            const c1 = (e.offsetX / scale + beg) | 0;
-            const r1 = (e.offsetY / scale  + beg) | 0;
+            const c1 = e.offsetX;
+            const r1 = e.offsetY;
             if (this.state == State.Osc || this.state == State.Mon) {
                 this.addOscillators(r0, c0, r1, c1);                                
             } else if (this.state == State.Sto) {
@@ -192,7 +185,7 @@ export default class Controller {
                 this.space.DeleteInRect(r0, c0, r1, c1);                                
             } 
             // show
-            show(this.space, n_vis);
+            show(this.space);
             if (this.viewMode == ViewMode.Three) {
                 clearCanvas2d();
             } 
@@ -264,7 +257,7 @@ export function createSpace() {
     const k_m = +(document.getElementById("k_m") as HTMLInputElement)!.value;
     const l = +(document.getElementById("loss") as HTMLInputElement)!.value;
     stop();
-    return new Space(n, n_vis, k_m, l);
+    return new Space(size, margin, k_m, l);
 }
 
 
