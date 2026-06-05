@@ -115,10 +115,10 @@ export default class Controller {
         this.space.step();  
         show(this.space);
         // stop when limit
-        if (this.space.nodes[1][1].z > 1e-4) {
-            this.stop(); 
-            console.log(this.space.nodes[1][1].z)
-        }
+        // if (this.space.nodes[1][1].z > 1e-4) {
+        //     this.stop(); 
+        //     console.log(this.space.nodes[1][1].z)
+        // }
     }
 
     stop() {

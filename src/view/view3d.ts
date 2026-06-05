@@ -24,14 +24,17 @@ export function init3d() {
     
     time = document.getElementById("time") as HTMLSpanElement;
     renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(1);
     renderer.setSize(canvas3d.width, canvas3d.height, false);
     
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB);
     
-    camera = new THREE.PerspectiveCamera(28, canvas3d.width / canvas3d.height, 0.1, 5000);
-    camera.position.set(0, -1000, 0);
+    let camera_angle = 30;
+    let camera_dist = canvas3d.width / (2 * Math.tan(Math.PI/180 * (camera_angle/2)));
+    
+    camera = new THREE.PerspectiveCamera(camera_angle, canvas3d.width / canvas3d.height, 0.1, 5000);
+    camera.position.set(0, -camera_dist, 0);
     camera.lookAt(0, 0, 0);
 
     ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
