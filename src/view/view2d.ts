@@ -1,5 +1,6 @@
 import Space from "../models/space.js";
 import { zScale } from "../controller/controller.js";   
+import {margin, size} from "../main.js"
 
 let canvas2d: HTMLCanvasElement;
 let time: HTMLSpanElement;
@@ -10,6 +11,8 @@ let data: ImageDataArray;
 
 export function init2d() {
     canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
+    canvas2d.width = canvas2d.height = 2 * margin + size;
+
     time = (document.getElementById("time") as HTMLSpanElement)!;
 
     ctx = canvas2d.getContext("2d")!;

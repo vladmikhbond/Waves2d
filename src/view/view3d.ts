@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Space from "../models/space.js";
 import { zScale } from "../controller/controller.js";
+import {margin, size} from "../main.js"
 
 let canvas3d: HTMLCanvasElement;
 let time: HTMLSpanElement;
@@ -19,6 +20,8 @@ const barMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness:
 
 export function init3d() {
     canvas3d = document.getElementById("canvas3d") as HTMLCanvasElement;
+    canvas3d.width = canvas3d.height = 2 * margin + size;
+    
     time = document.getElementById("time") as HTMLSpanElement;
     renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -83,24 +86,22 @@ function createGrid(n_vis: number) {
     nVisCurrent = n_vis;
 }
 
-function updateSurface(space: Space, n_vis: number) {
-    const n = space.nodes.length;
-    const beg = (n - n_vis) / 2 | 0;
-    const scaleY = zScale;
+function updateSurface(space: Space) {
+    const n = space.n;
 
-    if (!mesh || nVisCurrent !== n_vis) {
+    if (!mesh || nVisCurrent !== n) {
         if (mesh) scene.remove(mesh);
-        createGrid(n_vis);
+        createGrid(n);
     }
 
     if (!positions || !mesh) return;
 
-    const rowSize = n_vis;
-    for (let r = 0; r < n_vis; r++) {
-        for (let c = 0; c < n_vis; c++) {
-            const node = space.nodes[beg + r][beg + c];
+    const rowSize = n;
+    for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+            const node = space.nodes[r][c];
             const idx = 3 * (r * rowSize + c);
-            positions[idx + 1] = node.z * scaleY;
+            positions[idx + 1] = node.z * zScale;
         }
     }
 
@@ -109,16 +110,16 @@ function updateSurface(space: Space, n_vis: number) {
     geometry.computeVertexNormals();
 }
 
-function updateBars(space: Space, n_vis: number) {
-    const n = space.nodes.length;
-    const beg = (n - n_vis) / 2 | 0;
+function updateBars(space: Space) {
+    const n = space.n;
+
     barsGroup.clear();
 
     for (const b of space.bars) {
-        const x1 = b.c1 - beg - n_vis / 2 + 0.5;
-        const z1 = -(b.r1 - beg - n_vis / 2 + 0.5);
-        const x2 = b.c2 - beg - n_vis / 2 + 0.5;
-        const z2 = -(b.r2 - beg - n_vis / 2 + 0.5);
+        const x1 = b.c1 + 0.5;
+        const z1 = -(b.r1 + 0.5);
+        const x2 = b.c2 + 0.5;
+        const z2 = -(b.r2 + 0.5);
 
         const start = new THREE.Vector3(x1, 0, z1);
         const end = new THREE.Vector3(x2, 0, z2);
@@ -126,9 +127,7 @@ function updateBars(space: Space, n_vis: number) {
     }
 }
 
-function updateOscillators(space: Space, n_vis: number) {
-    const n = space.nodes.length;
-    const beg = (n - n_vis) / 2 | 0;
+function updateOscillators(space: Space) {
     oscGroup.clear();
 
     const sphereGeom = new THREE.SphereGeometry(3, 10, 10);
@@ -136,8 +135,8 @@ function updateOscillators(space: Space, n_vis: number) {
 
     for (const o of space.oscillators) {
         const sphere = new THREE.Mesh(sphereGeom, sphereMat);
-        let x = o.c - beg - n_vis / 2 + 0.5;
-        let z = -(o.r - beg - n_vis / 2 + 0.5);
+        let x = o.c + 0.5;
+        let z = -(o.r + 0.5);
         sphere.position.set(x, o.amp * 3, z);
 
         oscGroup.add(sphere);
@@ -146,10 +145,9 @@ function updateOscillators(space: Space, n_vis: number) {
 
 
 export function show3d(space: Space) {
-    const n_vis = space.size;
-    updateSurface(space, n_vis);
-    updateBars(space, n_vis);
-    updateOscillators(space, n_vis);
+    updateSurface(space);
+    updateBars(space);
+    updateOscillators(space);
     renderer.render(scene, camera);
     time.textContent = space.time.toString();
 }

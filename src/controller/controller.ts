@@ -1,4 +1,3 @@
-
 import {Oscillator, Mono} from "../models/oscillator.js";
 import Space from "../models/space.js";
 
@@ -14,9 +13,6 @@ const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
 
 let show = show2d;
-
-// показує розмір простору
-document.getElementById("params")!.innerHTML = `${size}/${margin}`
 
 enum State {
     Inf, Osc, Mon, Sto, Del
@@ -168,7 +164,8 @@ export default class Controller {
             // show mouse position
             const c = e.offsetX;
             const r = e.offsetY;
-            document.getElementById("info")!.innerHTML = `x${e.offsetX}, y${e.offsetY}, z${this.space.nodes[r][c].z}`;
+            document.getElementById("info")!.innerHTML = 
+                    `x:${e.offsetX}, y:${e.offsetY}, z:${this.space.nodes[r][c].z}`;
         });
 
 
