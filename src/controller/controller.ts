@@ -31,8 +31,8 @@ export default class Controller {
         this.space = createSpace();
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
-        init2d();
-        init3d();
+        init2d(this.space.n);
+        init3d(this.space.n);
         show(this.space);
     }
 
@@ -114,11 +114,6 @@ export default class Controller {
     step() {
         this.space.step();  
         show(this.space);
-        // stop when limit
-        // if (this.space.nodes[1][1].z > 1e-4) {
-        //     this.stop(); 
-        //     console.log(this.space.nodes[1][1].z)
-        // }
     }
 
     stop() {
@@ -139,7 +134,7 @@ export default class Controller {
 
 //#region mouse listeners
     addMouseListeners(canvas: HTMLElement) {
-        
+        const scale = 2;
         let x0 = 0, y0 = 0, mousedown = false;
 
         canvas.addEventListener("mousedown", (e) => {

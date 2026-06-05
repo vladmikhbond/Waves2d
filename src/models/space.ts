@@ -144,7 +144,25 @@ export default class Space
                 this.nodes[r][c].v *= (1 - this.nodes[r][c].l);
             }
         }
-        // вузли
+
+        // Випромінювачі
+        let c = Math.sqrt(this.k_m);        
+        // лівий і правий стовбці
+        let xL = this.margin + 1;
+        let xR = this.size + this.margin - 2;
+        for (let r = 1; r < n - 1; r++) {
+            this.nodes[r][xL].v = -c * (this.nodes[r][xL].z - this.nodes[r][xL + 1].z);
+            this.nodes[r][xR].v = -c * (this.nodes[r][xR].z - this.nodes[r][xR - 1].z);
+        }        
+        // верхній і нижній рядки
+        let rU = this.margin + 1;
+        let rL = this.size + this.margin - 2;
+        for (let co = 1; co < n - 1; co++) {
+            this.nodes[rU][co].v = -c * (this.nodes[rU][co].z - this.nodes[rU + 1][co].z);
+            this.nodes[rL][co].v = -c * (this.nodes[rL][co].z - this.nodes[rL - 1][co].z);
+        }
+        
+        // відхилення
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {               
                 if (!this.nodes[r][c].stone) 

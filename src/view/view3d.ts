@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import Space from "../models/space.js";
 import { zScale } from "../controller/controller.js";
-import {margin, size} from "../main.js"
 
 let canvas3d: HTMLCanvasElement;
 let time: HTMLSpanElement;
@@ -18,9 +17,10 @@ let barsGroup: THREE.Group;
 const barGeometry = new THREE.CylinderGeometry(3, 3, 1, 16);
 const barMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.7 });
 
-export function init3d() {
+export function init3d(n: number) {
     canvas3d = document.getElementById("canvas3d") as HTMLCanvasElement;
-    canvas3d.width = canvas3d.height = 2 * margin + size;
+    canvas3d.width = canvas3d.height = n;
+    canvas3d.style.width = canvas3d.style.height = `${2*n}px`;
     
     time = document.getElementById("time") as HTMLSpanElement;
     renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true });
