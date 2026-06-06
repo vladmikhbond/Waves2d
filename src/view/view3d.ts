@@ -14,7 +14,7 @@ let positions: Float32Array | null = null;
 let nVisCurrent = 0;
 let oscGroup: THREE.Group;
 let barsGroup: THREE.Group;
-const barGeometry = new THREE.CylinderGeometry(3, 3, 1, 16);
+const barGeometry = new THREE.CylinderGeometry(2, 2, 1, 16);
 const barMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.7 });
 
 export function init3d(n: number) {
@@ -132,7 +132,7 @@ function updateBars(space: Space) {
 function updateOscillators(space: Space) {
     oscGroup.clear();
     const n2 = space.n / 2;
-    const sphereGeom = new THREE.SphereGeometry(3, 10, 10);
+    const sphereGeom = new THREE.SphereGeometry(2, 10, 10);
     const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
 
     for (const o of space.oscillators) {

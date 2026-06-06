@@ -4,14 +4,17 @@ import Space from "../models/space.js";
 import { init3d, show3d} from "../view/view3d.js";
 import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
-import {size, margin} from "../main.js"
+
 
 export let zScale = 50;
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
+const margin = 0;
 
 let show = show2d;
+
+
 
 enum State {
     Inf, Osc, Mon, Sto, Del
@@ -144,10 +147,10 @@ export default class Controller {
 
 
         canvas.addEventListener("mousemove", (e) => {
-            const c0 = x0 / scale;
-            const r0 = y0 / scale;            
-            const c = e.offsetX / scale;
-            const r = e.offsetY / scale;
+            const c0 = x0 / scale | 0;
+            const r0 = y0 / scale | 0;            
+            const c = e.offsetX / scale | 0;
+            const r = e.offsetY / scale | 0;
             if (mousedown) {
                 show(this.space);
                 if (this.viewMode == ViewMode.Three) {
@@ -162,15 +165,15 @@ export default class Controller {
 
             // show mouse position
             document.getElementById("info")!.innerHTML = 
-                    `r:${r}, c:${c}, z:${this.space.nodes[r][c].z}`;
+                    `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;
         });
 
 
         canvas.addEventListener("mouseup", (e: MouseEvent) => {
-            const c0 = x0 / scale;
-            const r0 = y0 / scale;
-            const c1 = e.offsetX / scale;
-            const r1 = e.offsetY / scale;
+            const c0 = x0 / scale | 0;
+            const r0 = y0 / scale | 0;
+            const c1 = e.offsetX / scale | 0;
+            const r1 = e.offsetY / scale | 0;
             mousedown = false;
             if (this.state == State.Osc || this.state == State.Mon) {
                 this.addOscillators(r0, c0, r1, c1);                                
@@ -249,9 +252,11 @@ function parseRatio(value: string) {
 }
 
 export function createSpace() {
+    const size = +(document.getElementById("size") as HTMLInputElement)!.value;
     const k_m = +(document.getElementById("k_m") as HTMLInputElement)!.value;
     const l = +(document.getElementById("loss") as HTMLInputElement)!.value;
-    stop();
+    init2d(size);
+    init3d(size);
     return new Space(size, margin, k_m, l);
 }
 

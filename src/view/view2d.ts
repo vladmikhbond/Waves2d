@@ -55,8 +55,11 @@ export function show2d(space: Space)
                 level = 0;
             color(x, y, level, 3);
 
-            if (space.nodes[r][c].stone) {
+            if (space.nodes[r][c].is_stone) {
                 color(x, y, 0, 3);
+                color(x+1, y, 0, 3);
+                color(x, y+1, 0, 3);
+                color(x+1, y+1, 0, 3);
             }
         }
     }

@@ -1,11 +1,11 @@
-import {Oscillator, Mono} from "../models/oscillator.js";
+import {Oscillator} from "../models/oscillator.js";
 import Bar from "../models/bar.js";
 
 export class Node {
     z = 0
     v = 0
     l = 0
-    stone = false;
+    is_stone = false;
 
     constructor(loss: number) {
         this.l = loss;
@@ -18,11 +18,11 @@ export default class Space
     margin: number
 
     k_m = 0       // = k/m
-    time = 0        // такти часу
+    time = 0      // такти часу
 
     nodes: Node[][] = []
-    oscillators: Oscillator[] = []
-    bars: Bar[] = []
+    oscillators: Oscillator[]
+    bars: Bar[];
 
     get n() {
         return this.size + 2 * this.margin;
@@ -32,6 +32,8 @@ export default class Space
         
         this.size = size;
         this.margin = margin;
+        this.oscillators = [];
+        this.bars = [];
 
         this.k_m = k_m;
         // вузли з втратою
@@ -106,7 +108,7 @@ export default class Space
     throwStones() {
         for (let r = 0; r < this.n - 1; r++) {
             for (let c = 0; c < this.n - 1; c++) {
-                this.nodes[r][c].stone = false
+                this.nodes[r][c].is_stone = false
             }
         }
 
@@ -117,14 +119,14 @@ export default class Space
                     [r0, r1, c0, c1] = [r1, r0, c1, c0];
                 for (let r = r0; r <= r1; r++) {
                     let c = (r - r0) * (c1 - c0) / (r1 - r0) + c0 | 0;
-                    this.nodes[r][c].stone = true;
+                    this.nodes[r][c].is_stone = true;
                 }
             } else {
                 if (c1 < c0)
                     [r0, r1, c0, c1] = [r1, r0, c1, c0];
                 for (let c = c0; c <= c1; c++) {
                     let r = (c - c0) * (r1 - r0) / (c1 - c0) + r0 | 0;
-                    this.nodes[r][c].stone = true;
+                    this.nodes[r][c].is_stone = true;
                 }
             }
         }
@@ -146,26 +148,26 @@ export default class Space
         }
 
         // Випромінювачі
-        let c = Math.sqrt(this.k_m);        
+        let vPhase = Math.sqrt(this.k_m);        
         // лівий і правий стовбці
-        let xL = this.margin + 1;
-        let xR = this.size + this.margin - 2;
+        let cL = this.margin + 1;
+        let cR = this.size + this.margin - 2;
         for (let r = 1; r < n - 1; r++) {
-            this.nodes[r][xL].v = -c * (this.nodes[r][xL].z - this.nodes[r][xL + 1].z);
-            this.nodes[r][xR].v = -c * (this.nodes[r][xR].z - this.nodes[r][xR - 1].z);
+            this.nodes[r][cL].v = -vPhase * (this.nodes[r][cL].z - this.nodes[r][cL + 1].z);
+            this.nodes[r][cR].v = -vPhase * (this.nodes[r][cR].z - this.nodes[r][cR - 1].z);
         }        
         // верхній і нижній рядки
         let rU = this.margin + 1;
         let rL = this.size + this.margin - 2;
-        for (let co = 1; co < n - 1; co++) {
-            this.nodes[rU][co].v = -c * (this.nodes[rU][co].z - this.nodes[rU + 1][co].z);
-            this.nodes[rL][co].v = -c * (this.nodes[rL][co].z - this.nodes[rL - 1][co].z);
+        for (let c = 1; c < n - 1; c++) {
+            this.nodes[rU][c].v = -vPhase * (this.nodes[rU][c].z - this.nodes[rU + 1][c].z);
+            this.nodes[rL][c].v = -vPhase * (this.nodes[rL][c].z - this.nodes[rL - 1][c].z);
         }
         
         // відхилення
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {               
-                if (!this.nodes[r][c].stone) 
+                if (!this.nodes[r][c].is_stone) 
                     this.nodes[r][c].z += this.nodes[r][c].v;
             }
         }
