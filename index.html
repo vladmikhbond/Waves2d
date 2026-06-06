@@ -11,12 +11,10 @@
     <main class="container">
         <h1>
             Vawes 2d 
-            <!-- <small id="params"></small> -->
-            <b id="time"></b> 
-            <b id="info"></b>
+            <span id="time"></span> 
         </h1>
         <div>
-            size: <input type="text" id="size" value="600">
+            size: <input type="text" id="size" value="500">
             k/m: <input type="text" id="k_m" value=".49" title="0 < k/m <= 1/2">
             loss: <input type="text" id="loss" value=".0" >
             
@@ -37,7 +35,8 @@
             <button id="dButton" title="2d | 3d">3d</button>
         </div>
         <div>
-            <input type="range" id="zScale" min="1" max="100" value="50">
+            <input type="range" id="zScale" min="1" max="500" value="50">
+            <span id="info"></span>
         </div>
             
         <div class="canvas-frame">
