@@ -24,7 +24,8 @@ enum ViewMode {
     Two, Three
 }
 
-export default class Controller {
+export default class Controller 
+{
     space: Space;
     timer: ReturnType<typeof setInterval> | 0 = 0;
     viewMode: ViewMode = ViewMode.Two;
@@ -57,6 +58,8 @@ export default class Controller {
     {
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.space = createSpace();
+            init2d(this.space.n);
+            init3d(this.space.n);
             this.stop();
             show(this.space);
         });
@@ -116,6 +119,10 @@ export default class Controller {
     step() {
         this.space.step();  
         show(this.space);
+        // вимірювання швидкодії
+        if (this.space.time % 10 == 0) {
+////////////////////////////////////////////////////////
+        }
     }
 
     stop() {
@@ -255,8 +262,6 @@ export function createSpace() {
     const size = +(document.getElementById("size") as HTMLInputElement)!.value;
     const k_m = +(document.getElementById("k_m") as HTMLInputElement)!.value;
     const l = +(document.getElementById("loss") as HTMLInputElement)!.value;
-    init2d(size);
-    init3d(size);
     return new Space(size, margin, k_m, l);
 }
 
