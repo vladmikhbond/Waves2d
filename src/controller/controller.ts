@@ -54,13 +54,36 @@ export default class Controller
 
 
 //#region other listeners
+
+
+
+
+
     addOtherListeners() 
     {
+
         document.getElementById("resetButton")!.addEventListener("click", () => {
-            this.space = createSpace();
-            init2d(this.space.n);
-            init3d(this.space.n);
             this.stop();
+            const f = new Function("", 
+                "let size = 500,  k = 0.49,  loss = 0.0;" + 
+                (document.getElementById("params") as HTMLInputElement)!.value +
+                "return [size,  k,  loss]" );
+
+            let [size, k, loss] = f();
+            
+            if (this.space.size != size ) {
+                this.space = new Space(size, k, loss);
+                init2d(this.space.n);
+                init3d(this.space.n);
+                show(this.space);
+                return;
+            }                                            
+            if (this.space.k_m != k || this.space.loss != loss) {
+                this.space.k_m = k;
+                this.space.loss = loss;
+            } else {
+                this.space.calm();
+            } 
             show(this.space);
         });
 
@@ -97,15 +120,7 @@ export default class Controller
             let b = this.state == State.Osc || this.state == State.Mon;
             (document.getElementById("oscill_ampl") as HTMLSelectElement).disabled = !b;
             (document.getElementById("oscill_q") as HTMLSelectElement).disabled = !b;
-        });
-        
-        document.getElementById("k_m")!.addEventListener("change", (e) => {
-            this.space.k_m = +(e.target as HTMLInputElement).value;
-        });
-        
-        document.getElementById("loss")!.addEventListener("change", (e) => {
-            this.space.loss = +(e.target as HTMLInputElement).value
-        });
+        });        
         
         document.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key == "s") {
@@ -245,24 +260,18 @@ export default class Controller
 
 // ------------------------- free func ------------------------------
 
-function parseRatio(value: string) {
-    const parts = value.split("/").map((v) => v.trim());
-    if (parts.length === 2) {
-        const numerator = parseFloat(parts[0]);
-        const denominator = parseFloat(parts[1]);
-        if (!Number.isNaN(numerator) && !Number.isNaN(denominator) && denominator !== 0) {
-            return numerator / denominator;
-        }
-    }
-    const result = parseFloat(value);
-    return Number.isFinite(result) ? result : 0;
+function getParams() {
+    const f = new Function("", 
+        "let size = 500,  k = 0.49,  loss = 0.0;" + 
+        (document.getElementById("params") as HTMLInputElement)!.value +
+        "return [size,  k,  loss]" );
+    return f();       
 }
 
+
 export function createSpace() {
-    const size = +(document.getElementById("size") as HTMLInputElement)!.value;
-    const k_m = +(document.getElementById("k_m") as HTMLInputElement)!.value;
-    const l = +(document.getElementById("loss") as HTMLInputElement)!.value;
-    return new Space(size, margin, k_m, l);
+    const [size,  k,  loss] = getParams();
+    return new Space(size,  k,  loss);
 }
 
 

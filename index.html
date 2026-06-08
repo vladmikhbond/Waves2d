@@ -14,10 +14,8 @@
             <span id="time"></span> 
         </h1>
         <div>
-            size: <input type="text" id="size" value="500">
-            k/m: <input type="text" id="k_m" value=".49" title="0 < k/m <= 1/2">
-            loss: <input type="text" id="loss" value=".0" >
-            
+            <input id="params" type="text" value="size = 500;  k = 0.49;  loss = 0.0; " style="width: 350px;">
+            <button id="resetButton">C</button>
 
             <select id="state" aria-label="Select" required>
                 <option value="Inf" >Inf</option>
@@ -28,9 +26,8 @@
             </select>     
             
             <input id="oscill_ampl" value="1." style="width: 120px;" title="Амплитуда коливань">
-            <input id="oscill_q"   value=".25" style="width: 120px;" title="Хвильове число - q = 2π/λ ">
+            <input id="oscill_q"   value="1" style="width: 120px;" title="Хвильове число - q = 2π/λ ">
 
-            <button id="resetButton" title="Clear">C</button>
             <button id="runButton" title="Run | Stop">Run</button>
             <button id="dButton" title="2d | 3d">3d</button>
         </div>

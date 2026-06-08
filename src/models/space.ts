@@ -28,10 +28,10 @@ export default class Space
         return this.size + 2 * this.margin;
     }
 
-    constructor(size: number, margin:number, k_m: number, loss: number) {
+    constructor(size: number, k_m: number, loss: number) {
         
         this.size = size;
-        this.margin = margin;
+        this.margin = 0;
         this.oscillators = [];
         this.bars = [];
 
@@ -178,6 +178,13 @@ export default class Space
     
         // час 
         this.time++;
+
+
+        // if (this.time % 5 == 0) {
+        //     for (let o of this.oscillators) {
+        //         o.c++;
+        //     }
+        // }
     }
 
     set loss(l: number) {
@@ -188,5 +195,25 @@ export default class Space
             }
         }
 
+    }
+
+    get loss() {
+        let i = this.nodes.length / 2 | 0;
+        return this.nodes[i][i].l;
+    }
+
+    calm() {
+        const n = this.n;
+        // швидкості
+        for (let r = 1; r < this.n - 1; r++) {
+            for (let c = 1; c < this.n - 1; c++) {
+                this.nodes[r][c].z = 0;
+                this.nodes[r][c].v = 0;
+            }
+        }
+        // осцилятори
+        for (let o of this.oscillators) {
+            o.ph = -Math.PI/2 -o.dph;
+        }        
     }
 }
