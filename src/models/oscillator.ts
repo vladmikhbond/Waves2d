@@ -15,7 +15,7 @@ export class Oscillator {
         this.c = c;
         this.amp = a;
         this.space = space; 
-        let v = Math.sqrt(space.k_m);
+        let v = Math.sqrt(space.k);
         this.dph = q * v;
         this.ph = -this.dph;
     }

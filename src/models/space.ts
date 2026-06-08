@@ -17,7 +17,7 @@ export default class Space
     size: number 
     margin: number
 
-    k_m = 0       // = k/m
+    k = 0         
     time = 0      // такти часу
 
     nodes: Node[][] = []
@@ -31,11 +31,11 @@ export default class Space
     constructor(size: number, k_m: number, loss: number) {
         
         this.size = size;
-        this.margin = 0;
+        this.margin = 0; 
         this.oscillators = [];
         this.bars = [];
 
-        this.k_m = k_m;
+        this.k = k_m;
         // вузли з втратою
         this.nodes = new Array(this.n);
         for (let i = 0; i < this.n; i++) {
@@ -140,7 +140,7 @@ export default class Space
                 let z = this.nodes[r-1][c].z + this.nodes[r+1][c].z +
                          this.nodes[r][c-1].z + this.nodes[r][c+1].z -
                          4 * this.nodes[r][c].z;
-                let a = this.k_m * z;
+                let a = this.k * z;
                 this.nodes[r][c].v += a;
                 // втрати
                 this.nodes[r][c].v *= (1 - this.nodes[r][c].l);
@@ -148,7 +148,7 @@ export default class Space
         }
 
         // Випромінювачі
-        let vPhase = Math.sqrt(this.k_m);        
+        let vPhase = Math.sqrt(this.k);        
         // лівий і правий стовбці
         let cL = this.margin + 1;
         let cR = this.size + this.margin - 2;

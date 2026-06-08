@@ -1,17 +1,12 @@
-input[type=text] {
-    width: 80px ;
-}
+
 input[type=range] {
     width: 400px ;
 }
-input[type=radio] {
-    margin: 0;
-}
 
 select {
-    width: 150px ;
+    width: 120px ;
 }
-#params, #time, #info {
+#time, #info {
     font-size: large;
     margin-left: 50px;
 }

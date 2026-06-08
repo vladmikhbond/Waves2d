@@ -55,21 +55,11 @@ export default class Controller
 
 //#region other listeners
 
-
-
-
-
     addOtherListeners() 
     {
-
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.stop();
-            const f = new Function("", 
-                "let size = 500,  k = 0.49,  loss = 0.0;" + 
-                (document.getElementById("params") as HTMLInputElement)!.value +
-                "return [size,  k,  loss]" );
-
-            let [size, k, loss] = f();
+            const [size,  k,  loss] = getParams();
             
             if (this.space.size != size ) {
                 this.space = new Space(size, k, loss);
@@ -78,8 +68,8 @@ export default class Controller
                 show(this.space);
                 return;
             }                                            
-            if (this.space.k_m != k || this.space.loss != loss) {
-                this.space.k_m = k;
+            if (this.space.k != k || this.space.loss != loss) {
+                this.space.k = k;
                 this.space.loss = loss;
             } else {
                 this.space.calm();
@@ -118,8 +108,7 @@ export default class Controller
 
         document.getElementById("state")!.addEventListener("change", (e) => {
             let b = this.state == State.Osc || this.state == State.Mon;
-            (document.getElementById("oscill_ampl") as HTMLSelectElement).disabled = !b;
-            (document.getElementById("oscill_q") as HTMLSelectElement).disabled = !b;
+            (document.getElementById("oscilParams") as HTMLSelectElement).disabled = !b;
         });        
         
         document.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -186,8 +175,11 @@ export default class Controller
             }
 
             // show mouse position
-            document.getElementById("info")!.innerHTML = 
-                    `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;
+            if (this.space.nodes[r][c]) {
+                document.getElementById("info")!.innerHTML = 
+                        `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;                
+            }
+
         });
 
 
@@ -214,13 +206,12 @@ export default class Controller
 
     addOscillators(r0:number, c0:number, r1:number, c1: number) 
     {
-        let ampl = +(document.getElementById("oscill_ampl")! as HTMLInputElement).value;
-        let q = +(document.getElementById("oscill_q")! as HTMLInputElement).value;
+        let [amp, q] = getOscilParams();
 
         if (c0 == c1 && r0 == r1) {
             let osc = this.state == State.Osc ? 
-                    new Oscillator(r0, c0, ampl, q, this.space) : 
-                    new Mono(r0, c0, ampl, q, this.space)
+                    new Oscillator(r0, c0, amp, q, this.space) : 
+                    new Mono(r0, c0, amp, q, this.space)
             this.space.addOscillator(osc);
             return;
         }
@@ -231,8 +222,8 @@ export default class Controller
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
                 let osc = this.state == State.Osc ? 
-                    new Oscillator(r, c, ampl/2, q, this.space) : 
-                    new Mono(r, c, ampl/2, q, this.space)
+                    new Oscillator(r, c, amp/2, q, this.space) : 
+                    new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);
             }
         } else {
@@ -241,8 +232,8 @@ export default class Controller
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
                 let osc = this.state == State.Osc ? 
-                    new Oscillator(r, c, ampl/2, q, this.space) : 
-                    new Mono(r, c, ampl/2, q, this.space)
+                    new Oscillator(r, c, amp/2, q, this.space) : 
+                    new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);             
             }
         }
@@ -254,8 +245,6 @@ export default class Controller
     }
 
 //#endregion
-
-
 }
 
 // ------------------------- free func ------------------------------
@@ -264,8 +253,16 @@ function getParams() {
     const f = new Function("", 
         "let size = 500,  k = 0.49,  loss = 0.0;" + 
         (document.getElementById("params") as HTMLInputElement)!.value +
-        "return [size,  k,  loss]" );
+        "; return [size,  k,  loss]" );
     return f();       
+}
+
+function getOscilParams() {
+    const f = new Function("", 
+        "let amp = 1,  q = 0.25;" + 
+        (document.getElementById("oscilParams") as HTMLInputElement)!.value +
+        "; return [amp,  q]" );
+    return f();
 }
 
 
