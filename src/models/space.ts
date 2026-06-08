@@ -15,7 +15,7 @@ export class Node {
 export default class Space 
 {
     size: number 
-    margin: number
+
 
     k = 0         
     time = 0      // такти часу
@@ -25,13 +25,12 @@ export default class Space
     bars: Bar[];
 
     get n() {
-        return this.size + 2 * this.margin;
+        return this.size;
     }
 
     constructor(size: number, k_m: number, loss: number) {
         
-        this.size = size;
-        this.margin = 0; 
+        this.size = size; 
         this.oscillators = [];
         this.bars = [];
 
@@ -45,7 +44,7 @@ export default class Space
             }
         }
         // поглиначі
-        const len = this.margin, d = 0.1/len/len;
+        const len = 0, d = 0.1/len/len;
         for (let i = 0; i < len; i++) {
             frame(this, i, d * i * i )             
         }
@@ -150,15 +149,15 @@ export default class Space
         // Випромінювачі
         let vPhase = Math.sqrt(this.k);        
         // лівий і правий стовбці
-        let cL = this.margin + 1;
-        let cR = this.size + this.margin - 2;
+        let cL = 1;
+        let cR = this.size - 2;
         for (let r = 1; r < n - 1; r++) {
             this.nodes[r][cL].v = -vPhase * (this.nodes[r][cL].z - this.nodes[r][cL + 1].z);
             this.nodes[r][cR].v = -vPhase * (this.nodes[r][cR].z - this.nodes[r][cR - 1].z);
         }        
         // верхній і нижній рядки
-        let rU = this.margin + 1;
-        let rL = this.size + this.margin - 2;
+        let rU = 1;
+        let rL = this.size - 2;
         for (let c = 1; c < n - 1; c++) {
             this.nodes[rU][c].v = -vPhase * (this.nodes[rU][c].z - this.nodes[rU + 1][c].z);
             this.nodes[rL][c].v = -vPhase * (this.nodes[rL][c].z - this.nodes[rL - 1][c].z);
@@ -188,7 +187,7 @@ export default class Space
     }
 
     set loss(l: number) {
-        const beg = this.margin, end = beg + this.size;
+        const beg = 0, end = beg + this.size;
         for(let r = beg; r < end; r++) {
             for(let c = beg; c < end; c++) {
                  this.nodes[r][c].l = l; 

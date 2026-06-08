@@ -10,7 +10,6 @@ export let zScale = 50;
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
-const margin = 0;
 
 let show = show2d;
 
@@ -123,10 +122,6 @@ export default class Controller
     step() {
         this.space.step();  
         show(this.space);
-        // вимірювання швидкодії
-        if (this.space.time % 10 == 0) {
-////////////////////////////////////////////////////////
-        }
     }
 
     stop() {
@@ -250,11 +245,30 @@ export default class Controller
 // ------------------------- free func ------------------------------
 
 function getParams() {
-    const f = new Function("", 
-        "let size = 500,  k = 0.49,  loss = 0.0;" + 
-        (document.getElementById("params") as HTMLInputElement)!.value +
-        "; return [size,  k,  loss]" );
-    return f();       
+    const el = (document.getElementById("params") as HTMLInputElement)!;
+    let f;
+    try {
+        f = new Function("", 
+            "let size, k, loss;" + 
+            el.value + 
+            "; return [size,  k,  loss]" 
+        );
+    } catch {
+        el.style.backgroundColor = "pink";
+        return [500, 0.49, 0]
+    }
+
+    const [size,  k,  loss] = f!();
+    // params are OK  
+    if (size != undefined &&  k != undefined && loss != undefined) {
+        // el.value = `size = ${size}; k = ${k}; loss = ${loss}`;
+        el.style.backgroundColor = "white";
+        return [size,  k,  loss];
+    }
+    // params are wrong
+    el.style.backgroundColor = "pink";
+    return [500, 0.49, 0]
+        
 }
 
 function getOscilParams() {
