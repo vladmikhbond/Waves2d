@@ -56,27 +56,6 @@ export default class Controller
 
     addOtherListeners() 
     {
-        // resetButton
-        document.getElementById("resetButton")!.addEventListener("click", () => {
-            this.stop();
-            const [size,  k,  loss] = getParams();
-            
-            if (this.space.size != size ) {
-                this.space = new Space(size, k, loss);
-                init2d(this.space.n);
-                init3d(this.space.n);
-                show(this.space);
-                return;
-            }                                            
-            if (this.space.k != k || this.space.loss != loss) {
-                this.space.k = k;
-                this.space.loss = loss;
-            } else {
-                this.space.calm();
-            } 
-            show(this.space);
-        });
-
         // runButton
         document.getElementById("runButton")!.addEventListener("click", () => {
             if (this.timer) this.stop(); 
@@ -120,13 +99,14 @@ export default class Controller
             (document.getElementById("oscilParams") as HTMLSelectElement).disabled = !isOscMode;
         });        
         
-         
+        // params changed 
         document.getElementById("params")!.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key == "Enter") {
                 this.stop();
                 const [size,  k,  loss] = getParams();
                 
                 if (this.space.size != size ) {
+                    // new space
                     this.space = new Space(size, k, loss);
                     init2d(this.space.n);
                     init3d(this.space.n);
@@ -134,15 +114,18 @@ export default class Controller
                     return;
                 }                                            
                 if (this.space.k != k || this.space.loss != loss) {
+                    // new params
                     this.space.k = k;
                     this.space.loss = loss;
                 } else {
+                    // just calm
                     this.space.calm();
                 } 
                 show(this.space);
             }
         });             
 
+        // do one step
         document.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key == "s") {
                 this.stop();
