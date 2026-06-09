@@ -15,7 +15,7 @@ let show = show2d;
 
 
 
-enum State {
+enum Mode {
     Inf, Osc, Mon, Sto, Del
 }
 
@@ -38,16 +38,16 @@ export default class Controller
         show(this.space);
     }
 
-    get state(): State 
+    get mode(): Mode 
     {
-        const stateElem = document.getElementById("state") as HTMLInputElement;
+        const stateElem = document.getElementById("mode") as HTMLInputElement;
         
         switch(stateElem.value) {
-            case "Osc": return State.Osc;
-            case "Sto": return State.Sto;
-            case "Mon": return State.Mon;            
-            case "Del": return State.Del;
-            default: return State.Inf;           
+            case "Osc": return Mode.Osc;
+            case "Sto": return Mode.Sto;
+            case "Mon": return Mode.Mon;            
+            case "Del": return Mode.Del;
+            default: return Mode.Inf;           
         }       
     }
 
@@ -56,6 +56,7 @@ export default class Controller
 
     addOtherListeners() 
     {
+        // resetButton
         document.getElementById("resetButton")!.addEventListener("click", () => {
             this.stop();
             const [size,  k,  loss] = getParams();
@@ -76,11 +77,13 @@ export default class Controller
             show(this.space);
         });
 
+        // runButton
         document.getElementById("runButton")!.addEventListener("click", () => {
             if (this.timer) this.stop(); 
             else this.run();
         });
-
+        
+        // dimension Button
         document.getElementById("dButton")!.addEventListener("click", (e) => {
             if (this.viewMode == ViewMode.Two) {
                 // switch to 3d
@@ -99,17 +102,47 @@ export default class Controller
             show(this.space);
         });
             
+        // helpButton
+        document.getElementById("helpButton")!.addEventListener("click", () => {
+            window.open("help.html", "_blank")?.focus();
+        });
 
+        // z-scale range
         document.getElementById("zScale")!.addEventListener("change", (e) => {
             zScale = +(e.target as HTMLInputElement).value;
             show(this.space);
+            document.getElementById("zScaleValue")!.innerHTML = "x" + zScale; 
         });
 
-        document.getElementById("state")!.addEventListener("change", (e) => {
-            let b = this.state == State.Osc || this.state == State.Mon;
-            (document.getElementById("oscilParams") as HTMLSelectElement).disabled = !b;
+        // create mode selector
+        document.getElementById("mode")!.addEventListener("change", (e) => {
+            let isOscMode = this.mode == Mode.Osc || this.mode == Mode.Mon;
+            (document.getElementById("oscilParams") as HTMLSelectElement).disabled = !isOscMode;
         });        
         
+         
+        document.getElementById("params")!.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key == "Enter") {
+                this.stop();
+                const [size,  k,  loss] = getParams();
+                
+                if (this.space.size != size ) {
+                    this.space = new Space(size, k, loss);
+                    init2d(this.space.n);
+                    init3d(this.space.n);
+                    show(this.space);
+                    return;
+                }                                            
+                if (this.space.k != k || this.space.loss != loss) {
+                    this.space.k = k;
+                    this.space.loss = loss;
+                } else {
+                    this.space.calm();
+                } 
+                show(this.space);
+            }
+        });             
+
         document.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key == "s") {
                 this.stop();
@@ -162,7 +195,7 @@ export default class Controller
                 if (this.viewMode == ViewMode.Three) {
                     clearCanvas2d();
                 } 
-                if (this.state == State.Del) {
+                if (this.mode == Mode.Del) {
                     grayRect2d(c0, r0, c, r);
                 } else {
                     grayLine2d(c0, r0, c, r); 
@@ -184,11 +217,11 @@ export default class Controller
             const c1 = e.offsetX / scale | 0;
             const r1 = e.offsetY / scale | 0;
             mousedown = false;
-            if (this.state == State.Osc || this.state == State.Mon) {
+            if (this.mode == Mode.Osc || this.mode == Mode.Mon) {
                 this.addOscillators(r0, c0, r1, c1);                                
-            } else if (this.state == State.Sto) {
+            } else if (this.mode == Mode.Sto) {
                 this.addBars(r0, c0, r1, c1);                                
-            } else if (this.state == State.Del) {
+            } else if (this.mode == Mode.Del) {
                 this.space.DeleteInRect(r0, c0, r1, c1);                                
             } 
             // show
@@ -204,7 +237,7 @@ export default class Controller
         let [amp, q] = getOscilParams();
 
         if (c0 == c1 && r0 == r1) {
-            let osc = this.state == State.Osc ? 
+            let osc = this.mode == Mode.Osc ? 
                     new Oscillator(r0, c0, amp, q, this.space) : 
                     new Mono(r0, c0, amp, q, this.space)
             this.space.addOscillator(osc);
@@ -216,7 +249,7 @@ export default class Controller
                 [r0, r1, c0, c1] = [r1, r0, c1, c0]; 
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
-                let osc = this.state == State.Osc ? 
+                let osc = this.mode == Mode.Osc ? 
                     new Oscillator(r, c, amp/2, q, this.space) : 
                     new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);
@@ -226,7 +259,7 @@ export default class Controller
                 [r0, r1, c0, c1] = [r1, r0, c1, c0];             
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
-                let osc = this.state == State.Osc ? 
+                let osc = this.mode == Mode.Osc ? 
                     new Oscillator(r, c, amp/2, q, this.space) : 
                     new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);             

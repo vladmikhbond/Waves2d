@@ -17,7 +17,7 @@
             <input id="params" type="text" value="size=500;  k=0.49;  loss=0.0 " style="width: 350px;">
             <button id="resetButton">C</button>
 
-            <select id="state" aria-label="Select" required>
+            <select id="mode" aria-label="Select" required>
                 <option value="Inf" >Inf</option>
                 <option value="Sto">Sto</option>
                 <option value="Osc" selected >Osc</option>
@@ -29,9 +29,11 @@
 
             <button id="runButton" title="Run | Stop">Run</button>
             <button id="dButton" title="2d | 3d">3d</button>
+            <button id="helpButton" title="Help" class="outline">H</button>
         </div>
         <div>
-            <input type="range" id="zScale" min="1" max="500" value="50">
+            <input id="zScale" type="range" min="1" max="1000" value="50">
+            <span id="zScaleValue">x50</span>
             <span id="info"></span>
         </div>
             

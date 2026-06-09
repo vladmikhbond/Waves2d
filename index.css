@@ -1,10 +1,9 @@
-
 input[type=range] {
-    width: 400px ;
+    width: 500px ;
 }
 
 select {
-    width: 120px ;
+    width: 110px ;
 }
 #time, #info {
     font-size: large;
@@ -14,10 +13,11 @@ select {
 #resetButton {
     background-color: brown;
 }
-label {
+
+/* label {
     margin: 0px;
     padding: 0;
-}
+} */
 
 .canvas-frame {
     position: relative;
