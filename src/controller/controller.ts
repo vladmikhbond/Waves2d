@@ -5,14 +5,14 @@ import { init3d, show3d} from "../view/view3d.js";
 import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
 
+const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
+const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
+const stateElement = (document.getElementById("mode") as HTMLInputElement)!;
+const infoElement = (document.getElementById("info") as HTMLInputElement)!;
 
 export let zScale = 50;
 
-const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
-const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
-
 let show = show2d;
-
 
 
 enum Mode {
@@ -40,9 +40,7 @@ export default class Controller
 
     get mode(): Mode 
     {
-        const stateElem = document.getElementById("mode") as HTMLInputElement;
-        
-        switch(stateElem.value) {
+        switch(stateElement.value) {
             case "Osc": return Mode.Osc;
             case "Sto": return Mode.Sto;
             case "Mon": return Mode.Mon;            
@@ -101,7 +99,9 @@ export default class Controller
         
         // params changed 
         document.getElementById("params")!.addEventListener("keydown", (e: KeyboardEvent) => {
+
             if (e.key == "Enter") {
+                document.getElementById("zScale")!.focus();
                 this.stop();
                 const [size,  k,  loss] = getParams();
                 
@@ -138,6 +138,9 @@ export default class Controller
     step() {
         this.space.step();  
         show(this.space);
+        if (this.mode == Mode.Inf) {
+            infoElement.innerHTML = `E = ${this.space.energy()}`
+        }
     }
 
     stop() {
@@ -187,8 +190,7 @@ export default class Controller
 
             // show mouse position
             if (this.space.nodes[r][c]) {
-                document.getElementById("info")!.innerHTML = 
-                        `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;                
+                infoElement.innerHTML = `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;                
             }
 
         });
@@ -217,11 +219,11 @@ export default class Controller
 
     addOscillators(r0:number, c0:number, r1:number, c1: number) 
     {
-        let [amp, q] = getOscilParams();
+        let [amp, q, vx] = getOscilParams();    //todo
 
         if (c0 == c1 && r0 == r1) {
             let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r0, c0, amp, q, this.space) : 
+                    new Oscillator(r0, c0, amp, q, this.space, vx) : 
                     new Mono(r0, c0, amp, q, this.space)
             this.space.addOscillator(osc);
             return;
@@ -233,7 +235,7 @@ export default class Controller
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
                 let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r, c, amp/2, q, this.space) : 
+                    new Oscillator(r, c, amp/2, q, this.space, vx) : 
                     new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);
             }
@@ -243,7 +245,7 @@ export default class Controller
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0)*(r1 - r0)/(c1 - c0) + r0 | 0;
                 let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r, c, amp/2, q, this.space) : 
+                    new Oscillator(r, c, amp/2, q, this.space, vx) : 
                     new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);             
             }
@@ -289,9 +291,9 @@ function getParams() {
 
 function getOscilParams() {
     const f = new Function("", 
-        "let amp = 1,  q = 0.25;" + 
+        "let amp = 1,  q = 0.25, vx=1/2 ;" + 
         (document.getElementById("oscilParams") as HTMLInputElement)!.value +
-        "; return [amp,  q]" );
+        "; return [amp, q, vx]" );
     return f();
 }
 

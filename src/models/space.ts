@@ -178,12 +178,13 @@ export default class Space
         // час 
         this.time++;
 
-
-        // if (this.time % 5 == 0) {
-        //     for (let o of this.oscillators) {
-        //         o.c++;
-        //     }
-        // }
+        // Рух осциляторів        
+        for (let o of this.oscillators) {
+            if (o.vx && this.time % o.vx == 0) {
+                o.c++;
+            }
+        }
+        
     }
 
     set loss(l: number) {
@@ -201,8 +202,9 @@ export default class Space
         return this.nodes[i][i].l;
     }
 
+    // заспокоює хвилі
     calm() {
-        const n = this.n;
+        const n = this.size;
         // швидкості
         for (let r = 1; r < this.n - 1; r++) {
             for (let c = 1; c < this.n - 1; c++) {
@@ -214,5 +216,23 @@ export default class Space
         for (let o of this.oscillators) {
             o.ph = -Math.PI/2 -o.dph;
         }        
+    }
+
+    energy() {
+        const n = this.size;
+        let e = 0;
+        // швидкості
+        for (let r = 1; r < n - 1; r++) {
+            for (let c = 1; c < n - 1; c++) {
+                e += this.nodes[r][c].v ** 2
+            }
+        }
+        for (let r = 1; r < n - 2; r++) {
+            for (let c = 1; c < n - 2; c++) {
+                e += (this.nodes[r][c+1].z - this.nodes[r][c].z)**2 + 
+                     (this.nodes[r+1][c].z - this.nodes[r][c].z)**2;
+            }
+        }
+        return e / 2;
     }
 }

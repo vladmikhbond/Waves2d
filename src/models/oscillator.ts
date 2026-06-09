@@ -9,8 +9,9 @@ export class Oscillator {
     ph = 0
     dph = 0
     space: Space;
+    vx = 0;
 
-    constructor(r: number, c: number, a: number, q: number, space: Space) {
+    constructor(r: number, c: number, a: number, q: number, space: Space, vx = 0) {
         this.r = r;
         this.c = c;
         this.amp = a;
@@ -18,6 +19,7 @@ export class Oscillator {
         let v = Math.sqrt(space.k);
         this.dph = q * v;
         this.ph = -this.dph;
+        this.vx = vx ? 1/vx | 0 : 0;
     }
     
     next_s() {
