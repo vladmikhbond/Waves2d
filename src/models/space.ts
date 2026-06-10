@@ -184,7 +184,8 @@ export default class Space
                 this.nodes[o.r][o.c].z = (
                     this.nodes[o.r][o.c-1].z + this.nodes[o.r][o.c + 1].z +
                     this.nodes[o.r - 1][o.c].z + this.nodes[o.r + 1][o.c].z) / 4;
-                o.c++;
+                if (o.vx > 0) o.c++;
+                if (o.vx < 0) o.c--;
             }
         }
 
