@@ -8,8 +8,8 @@ export class Oscillator {
     omega = 0 
     ph = 0
     dph = 0
-    space: Space;
-    vx = 0;
+    space: Space
+    vx = 0
 
     constructor(r: number, c: number, a: number, q: number, space: Space, vx = 0) {
         this.r = r;

@@ -174,17 +174,22 @@ export default class Space
         for (let o of this.oscillators) {
             this.nodes[o.r][o.c].z = o.next_s();
         }
-    
-        // час 
-        this.time++;
 
         // Рух осциляторів        
         for (let o of this.oscillators) {
             if (o.vx && this.time % o.vx == 0) {
+                this.nodes[o.r][o.c].v = (
+                    this.nodes[o.r][o.c-1].v + this.nodes[o.r][o.c + 1].v +
+                    this.nodes[o.r - 1][o.c].v + this.nodes[o.r + 1][o.c].v) / 4;
+                this.nodes[o.r][o.c].z = (
+                    this.nodes[o.r][o.c-1].z + this.nodes[o.r][o.c + 1].z +
+                    this.nodes[o.r - 1][o.c].z + this.nodes[o.r + 1][o.c].z) / 4;
                 o.c++;
             }
         }
-        
+
+        // час 
+        this.time++;        
     }
 
     set loss(l: number) {
@@ -215,7 +220,9 @@ export default class Space
         // осцилятори
         for (let o of this.oscillators) {
             o.ph = -Math.PI/2 -o.dph;
-        }        
+        }
+        // твймер
+        this.time = 0;
     }
 
     energy() {
@@ -224,7 +231,7 @@ export default class Space
         // швидкості
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {
-                e += this.nodes[r][c].v ** 2
+                e += this.nodes[r][c].v ** 2;
             }
         }
         for (let r = 1; r < n - 2; r++) {

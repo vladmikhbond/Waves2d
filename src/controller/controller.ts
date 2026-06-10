@@ -7,7 +7,7 @@ import Bar from "../models/bar.js";
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
-const stateElement = (document.getElementById("mode") as HTMLInputElement)!;
+const modeElement = (document.getElementById("mode") as HTMLInputElement)!;
 const infoElement = (document.getElementById("info") as HTMLInputElement)!;
 
 export let zScale = 50;
@@ -40,7 +40,7 @@ export default class Controller
 
     get mode(): Mode 
     {
-        switch(stateElement.value) {
+        switch(modeElement.value) {
             case "Osc": return Mode.Osc;
             case "Sto": return Mode.Sto;
             case "Mon": return Mode.Mon;            
