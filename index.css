@@ -2,12 +2,19 @@ input[type=range] {
     width: 500px ;
 }
 
-input[type=text] {
-    width: 320px ;
-}
 select {
     width: 110px ;
 }
+
+#params {
+    width: 450px;
+}
+
+#oscilParams, 
+#recieverParams {
+    width: 300px;
+}
+
 #time, #info {
     font-size: large;
     margin-left: 50px;

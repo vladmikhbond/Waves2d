@@ -22,10 +22,12 @@
                 <option value="Sto">Sto</option>
                 <option value="Osc" selected >Osc</option>
                 <option value="Mon">Mon</option>
+                <option value="Rec">Rec</option>
                 <option value="Del">Del</option>
             </select>     
-            
-            <input id="oscilParams" type="text" value="amp=1;  q=0.25; vx=0" >
+
+            <input id="oscilParams" type="text" value="amp=1;  q=0.25; vx=0" style="display: inline;">
+            <input id="recieverParams" type="text" value="loss=0.5" style="display: none;">
 
             <button id="runButton" title="Run | Stop">Run</button>
             <button id="dButton" title="2d | 3d">3d</button>

@@ -72,6 +72,14 @@ export function show2d(space: Space)
         ctx.fillStyle = "red";
         ctx.fillRect(x-1.5, y-1.5, 3, 3);
     }
+    // draw receivers
+    for (let o of space.receivers) {
+        let x = o.c;
+        let y = o.r;
+        ctx.fillStyle = "black";
+        ctx.fillRect(x-1.5, y-1.5, 3, 3);
+    }
+
     //
     time.innerHTML = space.time.toString()
 }

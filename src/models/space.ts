@@ -1,4 +1,5 @@
 import {Oscillator} from "../models/oscillator.js";
+import Receiver from "../models/receiver.js";
 import Bar from "../models/bar.js";
 
 export class Node {
@@ -21,8 +22,9 @@ export default class Space
     time = 0      // такти часу
 
     nodes: Node[][] = []
-    oscillators: Oscillator[]
-    bars: Bar[];
+    oscillators: Oscillator[] = []
+    receivers: Receiver[] = []
+    bars: Bar[] = []
 
     get n() {
         return this.size;
@@ -31,8 +33,8 @@ export default class Space
     constructor(size: number, k_m: number, loss: number) {
         
         this.size = size; 
-        this.oscillators = [];
-        this.bars = [];
+        // this.oscillators = [];
+        // this.bars = [];
 
         this.k = k_m;
         // вузли з втратою
@@ -64,43 +66,68 @@ export default class Space
         this.oscillators.push(osc);
     }
 
-    removeOscillator(r: number, c: number) {
-        const eps = 4;
-        for (let i = 0; i < this.oscillators.length; i++) {
-            let o = this.oscillators[i];
-            if (Math.hypot(o.c - c, o.r - r) <= eps) {
-                this.oscillators.splice(i, 1);
-            }
+    // removeOscillator(r: number, c: number) {
+    //     const eps = 4;
+    //     for (let i = 0; i < this.oscillators.length; i++) {
+    //         let o = this.oscillators[i];
+    //         if (Math.hypot(o.c - c, o.r - r) <= eps) {
+    //             this.oscillators.splice(i, 1);
+    //         }
+    //     }
+    // }
+
+    addReceiver(rec: Receiver) {
+        this.receivers.push(rec);
+        // встановлює коеф втрат у вузлі
+        this.nodes[rec.r][rec.c].l = rec.loss; 
+    }
+
+    remReceiver(rec: Receiver) {
+        const idx = this.receivers.indexOf(rec);
+        if (idx != -1) {
+            this.receivers.splice(idx, 1);
+            // повертає коеф втрат у вузлі
+            this.nodes[rec.r][rec.c].l = this.loss; 
         }
     }
+
 
     addBar(bar: Bar) {
         this.bars.push(bar);
         this.throwStones();
     }
 
-    removeBar(r1: number, c1: number, r2: number, c2: number) {
-        const eps = 4;
-        for (let i = 0; i < this.bars.length; i++) {
-            const bar = this.bars[i];
-            if (Math.hypot(bar.c2 - c1, bar.r2 - r1) <= eps && Math.hypot(bar.c1 - c2, bar.r1 - r2) <= eps || 
-                Math.hypot(bar.c2 - c2, bar.r2 - r2) <= eps && Math.hypot(bar.c1 - c1, bar.r1 - r1) <= eps ) {
-                this.bars.splice(i, 1);
-                this.throwStones();
-                break;
-            }
-        }   
-    }
+    // removeBar(r1: number, c1: number, r2: number, c2: number) {
+    //     const eps = 4;
+    //     for (let i = 0; i < this.bars.length; i++) {
+    //         const bar = this.bars[i];
+    //         if (Math.hypot(bar.c2 - c1, bar.r2 - r1) <= eps && Math.hypot(bar.c1 - c2, bar.r1 - r2) <= eps || 
+    //             Math.hypot(bar.c2 - c2, bar.r2 - r2) <= eps && Math.hypot(bar.c1 - c1, bar.r1 - r1) <= eps ) {
+    //             this.bars.splice(i, 1);
+    //             this.throwStones();
+    //             break;
+    //         }
+    //     }   
+    // }
 
     DeleteInRect(r1: number, c1: number, r2: number, c2: number) {
         this.bars = this.bars.filter(b => !(
-            r1 < b.r1 && b.r1 < r2 &&     
-            c1 < b.c1 && b.c1 < c2 &&     
-            r1 < b.r2 && b.r2 < r2 &&     
-            c1 < b.c2 && b.c2 < c2 ));    
+                r1 < b.r1 && b.r1 < r2 &&     
+                c1 < b.c1 && b.c1 < c2 &&     
+                r1 < b.r2 && b.r2 < r2 &&     
+                c1 < b.c2 && b.c2 < c2 )); 
+
         this.oscillators = this.oscillators.filter(o => !(
-            r1 < o.r && o.r < r2 &&     
-            c1 < o.c && o.c < c2));  
+                r1 < o.r && o.r < r2 &&     
+                c1 < o.c && o.c < c2));  
+        
+        const receiversToRemove = this.receivers.filter(o => 
+                r1 < o.r && o.r < r2 &&     
+                c1 < o.c && o.c < c2); 
+        for (const rec of receiversToRemove) {
+            this.remReceiver(rec);
+        }
+
         this.throwStones();
     } 
 
@@ -137,8 +164,8 @@ export default class Space
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {
                 let z = this.nodes[r-1][c].z + this.nodes[r+1][c].z +
-                         this.nodes[r][c-1].z + this.nodes[r][c+1].z -
-                         4 * this.nodes[r][c].z;
+                        this.nodes[r][c-1].z + this.nodes[r][c+1].z -
+                        4 * this.nodes[r][c].z;
                 let a = this.k * z;
                 this.nodes[r][c].v += a;
                 // втрати
