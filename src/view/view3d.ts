@@ -13,6 +13,7 @@ let mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = 
 let positions: Float32Array | null = null;
 let nVisCurrent = 0;
 let oscGroup: THREE.Group;
+let recGroup: THREE.Group;
 let barsGroup: THREE.Group;
 const barGeometry = new THREE.CylinderGeometry(2, 2, 1, 16);
 const barMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.7 });
@@ -48,8 +49,10 @@ export function init3d(n: number) {
     nVisCurrent = 0;
 
     oscGroup = new THREE.Group();
+    recGroup = new THREE.Group();
     barsGroup = new THREE.Group();
     scene.add(oscGroup);
+    scene.add(recGroup);
     scene.add(barsGroup);
 }
 
@@ -145,11 +148,29 @@ function updateOscillators(space: Space) {
     }
 }
 
+function updateReceivers(space: Space) {
+    recGroup.clear();
+    const n2 = space.n / 2;
+    const sphereGeom = new THREE.SphereGeometry(2, 10, 10);
+    const sphereMat = new THREE.MeshStandardMaterial({ color: 0xFFFF00, emissive: 0x330000 });
+
+    for (const rec of space.receivers) {
+        const sphere = new THREE.Mesh(sphereGeom, sphereMat);
+        let x = rec.c - n2 + 0.5;
+        let z = -(rec.r - n2 + 0.5);
+        sphere.position.set(x, 0, z);   // 0, ???
+
+        oscGroup.add(sphere);
+    }
+}
+
+
 
 export function show3d(space: Space) {
     updateSurface(space);
     updateBars(space);
     updateOscillators(space);
+    updateReceivers(space);
     renderer.render(scene, camera);
     time.textContent = space.time.toString();
 }
