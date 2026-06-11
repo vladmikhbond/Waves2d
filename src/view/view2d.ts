@@ -76,7 +76,7 @@ export function show2d(space: Space)
     for (let o of space.receivers) {
         let x = o.c;
         let y = o.r;
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "yellow";
         ctx.fillRect(x-1.5, y-1.5, 3, 3);
     }
 
