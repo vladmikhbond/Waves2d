@@ -102,7 +102,6 @@ export default class Controller
         });
 
 
-
         // params changed 
         document.getElementById("params")!.addEventListener("keydown", (e: KeyboardEvent) => {
 
@@ -194,9 +193,16 @@ export default class Controller
                 }
             }
 
-            // show mouse position
+            // show an object under the mouse cursor
+
             if (this.space.nodes[r][c]) {
-                infoElement.innerHTML = `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;                
+                infoElement.innerHTML = `r:${r}, c:${c}, z:${this.space.nodes[r][c].z.toFixed(3)}`;  
+                let osc = this.space.getOscillatorAt(r, c);
+                if (osc) 
+                    infoElement.innerHTML = `r:${osc.r}, c:${osc.c}, Osc: amp=${osc.amp.toFixed(3)} ph=${osc.ph.toFixed(3)}`;
+                let rec = this.space.getReceiverAt(r, c);
+                if (rec) 
+                    infoElement.innerHTML = `r:${rec.r}, c:${rec.c}, Rec: energy${rec.energy.toFixed(6)}`;   
             }
 
         });

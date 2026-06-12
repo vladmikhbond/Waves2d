@@ -17,7 +17,6 @@ export default class Space
 {
     size: number 
 
-
     k = 0         
     time = 0      // такти часу
 
@@ -33,8 +32,6 @@ export default class Space
     constructor(size: number, k_m: number, loss: number) {
         
         this.size = size; 
-        // this.oscillators = [];
-        // this.bars = [];
 
         this.k = k_m;
         // вузли з втратою
@@ -45,36 +42,32 @@ export default class Space
                 this.nodes[i][j] = new Node(loss);
             }
         }
-        // поглиначі
-        const len = 0, d = 0.1/len/len;
-        for (let i = 0; i < len; i++) {
-            frame(this, i, d * i * i )             
-        }
 
-        function frame(me: Space, no: number, loss: number) {
-            for (let i = no; i < me.n - no; i++) {
-                me.nodes[no][i].l = loss;
-                me.nodes[me.n - no - 1][i].l = loss;
-                me.nodes[i][no].l = loss;
-                me.nodes[i][me.n - no - 1].l = loss;   
+    }
+
+    getOscillatorAt(r: number, c: number): Oscillator | null
+    {
+        for (const osc of this.oscillators) {
+            if (Math.abs(osc.r - r) < 3 && Math.abs(osc.c - c) < 3) {
+                return osc;
             }
         }
+        return null;
+    }
 
+    getReceiverAt(r: number, c: number): Receiver | null
+    {
+        for (const rec of this.receivers) {
+            if (Math.abs(rec.r - r) < 3 && Math.abs(rec.c - c) < 3) {
+                return rec;
+            }
+        }
+        return null;
     }
 
     addOscillator(osc: Oscillator) {
         this.oscillators.push(osc);
     }
-
-    // removeOscillator(r: number, c: number) {
-    //     const eps = 4;
-    //     for (let i = 0; i < this.oscillators.length; i++) {
-    //         let o = this.oscillators[i];
-    //         if (Math.hypot(o.c - c, o.r - r) <= eps) {
-    //             this.oscillators.splice(i, 1);
-    //         }
-    //     }
-    // }
 
     addReceiver(rec: Receiver) {
         this.receivers.push(rec);
@@ -96,19 +89,6 @@ export default class Space
         this.bars.push(bar);
         this.throwStones();
     }
-
-    // removeBar(r1: number, c1: number, r2: number, c2: number) {
-    //     const eps = 4;
-    //     for (let i = 0; i < this.bars.length; i++) {
-    //         const bar = this.bars[i];
-    //         if (Math.hypot(bar.c2 - c1, bar.r2 - r1) <= eps && Math.hypot(bar.c1 - c2, bar.r1 - r2) <= eps || 
-    //             Math.hypot(bar.c2 - c2, bar.r2 - r2) <= eps && Math.hypot(bar.c1 - c1, bar.r1 - r1) <= eps ) {
-    //             this.bars.splice(i, 1);
-    //             this.throwStones();
-    //             break;
-    //         }
-    //     }   
-    // }
 
     DeleteInRect(r1: number, c1: number, r2: number, c2: number) {
         this.bars = this.bars.filter(b => !(
@@ -159,7 +139,7 @@ export default class Space
     }
 
     step() {
-        const n = this.n;
+        const n = this.size;
         // швидкості
         for (let r = 1; r < n - 1; r++) {
             for (let c = 1; c < n - 1; c++) {
@@ -198,8 +178,13 @@ export default class Space
             }
         }
         // осцилятори
-        for (let o of this.oscillators) {
-            this.nodes[o.r][o.c].z = o.next_s();
+        for (let osc of this.oscillators) {
+            this.nodes[osc.r][osc.c].z = osc.next_s();
+        }
+
+        // приймачі
+        for (let rec of this.receivers) {
+            rec.step();
         }
 
         // Рух осциляторів        

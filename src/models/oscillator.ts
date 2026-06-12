@@ -5,7 +5,6 @@ export class Oscillator {
     r = 0
     c = 0
     amp = 0
-    omega = 0 
     ph = 0
     dph = 0
     space: Space
