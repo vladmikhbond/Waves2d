@@ -5,6 +5,7 @@ import Space from "../models/space.js";
 import { init3d, show3d} from "../view/view3d.js";
 import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
+import { getSpaceParams, getOscilParams, getReceiverParams } from "./params.js";
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
@@ -31,7 +32,7 @@ export default class Controller
     viewMode: ViewMode = ViewMode.Two;
 
     constructor() {
-        this.space = createSpace();
+        this.space = new Space(...getSpaceParams()); 
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
         init2d(this.space.n);
@@ -103,12 +104,12 @@ export default class Controller
 
 
         // params changed 
-        document.getElementById("params")!.addEventListener("keydown", (e: KeyboardEvent) => {
+        document.getElementById("spaceParams")!.addEventListener("keydown", (e: KeyboardEvent) => {
 
             if (e.key == "Enter") {
                 document.getElementById("zScale")!.focus();
                 this.stop();
-                const [size,  k,  loss] = getParams();
+                const [size,  k,  loss] = getSpaceParams();
                 
                 if (this.space.size != size ) {
                     // new space
@@ -128,8 +129,23 @@ export default class Controller
                 } 
                 show(this.space);
             }
-        });             
+        });  
+        
+        document.getElementById("oscilParams")!.addEventListener("keydown", (e: KeyboardEvent) => 
+        {
+            if (e.key == "Enter") {
+                getOscilParams();
+            }
+        }); 
 
+        document.getElementById("recieverParams")!.addEventListener("keydown", (e: KeyboardEvent) => 
+        {
+            if (e.key == "Enter") {
+                getReceiverParams();
+            }
+        }); 
+
+        
         // do one step
         document.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key == "s") {
@@ -161,8 +177,7 @@ export default class Controller
             this.step();
         }, 1);
     }
-//#endregion
-    
+//#endregion otner listeners
 
 //#region mouse listeners
     addMouseListeners(canvas: HTMLElement) {
@@ -241,11 +256,11 @@ export default class Controller
 
     addOscillators(r0:number, c0:number, r1:number, c1: number) 
     {
-        let [amp, q, vx] = getOscilParams();    //todo
+        let [amp, q, vx, lambda] = getOscilParams();    //todo
         // просто точка
         if (c0 == c1 && r0 == r1) {
             let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r0, c0, amp, q, this.space, vx) : 
+                    new Oscillator(r0, c0, amp, q, lambda, vx, this.space) : 
                     new Mono(r0, c0, amp, q, this.space)
             this.space.addOscillator(osc);
             return;
@@ -257,7 +272,7 @@ export default class Controller
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
                 let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r, c, amp/2, q, this.space, vx) : 
+                    new Oscillator(r, c, amp/2, q, lambda, vx, this.space) : 
                     new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);
             }
@@ -268,7 +283,7 @@ export default class Controller
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0) * (r1 - r0) / (c1 - c0) + r0 | 0;
                 let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r, c, amp/2, q, this.space, vx) : 
+                    new Oscillator(r, c, amp/2, q, lambda, vx, this.space) : 
                     new Mono(r, c, amp/2, q, this.space)
                 this.space.addOscillator(osc);             
             }
@@ -305,58 +320,5 @@ export default class Controller
     {
         this.space.addBar(new Bar(r0, c0, r1, c1));
     }
-
-
-//#endregion
+//#endregion mouse listeners
 }
-
-// ------------------------- free func ------------------------------
-
-function getParams() {
-    const el = (document.getElementById("params") as HTMLInputElement)!;
-    let f;
-    try {
-        f = new Function("", 
-            "let size, k, loss;" + 
-            el.value + 
-            "; return [size,  k,  loss]" 
-        );
-    } catch {
-        el.style.backgroundColor = "pink";
-        return [500, 0.49, 0]
-    }
-
-    const [size,  k,  loss] = f!();
-    // params are OK  
-    if (size != undefined &&  k != undefined && loss != undefined) {
-        el.style.backgroundColor = "white";
-        return [size,  k,  loss];
-    }
-    // params are wrong
-    el.style.backgroundColor = "pink";
-    return [500, 0.49, 0]
-        
-}
-
-function getOscilParams() {
-    const f = new Function("", 
-        "let amp = 1,  q = 0.25, vx=1/2 ;" + 
-        (document.getElementById("oscilParams") as HTMLInputElement)!.value +
-        "; return [amp, q, vx]" );
-    return f();
-}
-
-function getReceiverParams() {
-    const f = new Function("", 
-        "let loss = 0.5;" + 
-        (document.getElementById("recieverParams") as HTMLInputElement)!.value +
-        "; return loss" );
-    return f();   
-}
-
-
-export function createSpace() {
-    const [size,  k,  loss] = getParams();
-    return new Space(size,  k,  loss);
-}
-
