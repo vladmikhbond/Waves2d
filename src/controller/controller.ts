@@ -261,7 +261,7 @@ export default class Controller
         if (c0 == c1 && r0 == r1) {
             let osc = this.mode == Mode.Osc ? 
                     new Oscillator(r0, c0, amp, q, lambda, vx, this.space) : 
-                    new Mono(r0, c0, amp, q, this.space)
+                    new Mono(r0, c0, amp, q, lambda, this.space)
             this.space.addOscillator(osc);
             return;
         }
@@ -273,7 +273,7 @@ export default class Controller
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
                 let osc = this.mode == Mode.Osc ? 
                     new Oscillator(r, c, amp/2, q, lambda, vx, this.space) : 
-                    new Mono(r, c, amp/2, q, this.space)
+                    new Mono(r, c, amp/2, q, lambda, this.space)
                 this.space.addOscillator(osc);
             }
         // цикл по стовбцях
@@ -284,7 +284,7 @@ export default class Controller
                 let r = (c - c0) * (r1 - r0) / (c1 - c0) + r0 | 0;
                 let osc = this.mode == Mode.Osc ? 
                     new Oscillator(r, c, amp/2, q, lambda, vx, this.space) : 
-                    new Mono(r, c, amp/2, q, this.space)
+                    new Mono(r, c, amp/2, q, lambda, this.space)
                 this.space.addOscillator(osc);             
             }
         }
