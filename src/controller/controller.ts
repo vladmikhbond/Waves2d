@@ -10,6 +10,7 @@ import { getSpaceParams, getOscilParams, getReceiverParams } from "./params.js";
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
 const modeElement = (document.getElementById("mode") as HTMLInputElement)!;
+const timeElement = (document.getElementById("time") as HTMLInputElement)!;
 const infoElement = (document.getElementById("info") as HTMLInputElement)!;
 
 export let zScale = 50;
@@ -35,9 +36,7 @@ export default class Controller
         this.space = new Space(...getSpaceParams()); 
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
-        init2d(this.space.n);
-        init3d(this.space.n);
-        show(this.space);
+        this.initCanvases()
     }
 
     get mode(): Mode 
@@ -52,6 +51,14 @@ export default class Controller
         }       
     }
 
+    initCanvases() {        
+        const n = this.space.n;
+        document.documentElement.style.setProperty('--canvas-width', 2*n +'px');
+        document.documentElement.style.setProperty('--canvas-height', 2*n +'px');
+        init2d(n);
+        init3d(n);
+        show(this.space);
+    }     
 
 //#region other listeners
 
@@ -91,7 +98,7 @@ export default class Controller
         document.getElementById("zScale")!.addEventListener("change", (e) => {
             zScale = +(e.target as HTMLInputElement).value;
             show(this.space);
-            document.getElementById("zScaleValue")!.innerHTML = "x" + zScale; 
+            document.getElementById("zScaleValue")!.innerHTML = "1:" + zScale; 
         });
 
         // change visibility             
@@ -114,9 +121,8 @@ export default class Controller
                 if (this.space.size != size ) {
                     // new space
                     this.space = new Space(size, k, loss);
-                    init2d(this.space.n);
-                    init3d(this.space.n);
-                    show(this.space);
+                    this.initCanvases();
+                    
                     return;
                 }                                            
                 if (this.space.k != k || this.space.loss != loss) {
@@ -159,8 +165,9 @@ export default class Controller
     step() {
         this.space.step();  
         show(this.space);
-        if (this.mode == Mode.Inf) {
-            infoElement.innerHTML = `E = ${this.space.energy()}`
+        if (this.space.time % 10 == 0) {
+            timeElement.innerHTML = 
+               `T=${this.space.time} &nbsp;&nbsp; E=${this.space.energy().toFixed(4)}`;
         }
     }
 

@@ -2,18 +2,20 @@ import Space from "../models/space.js";
 import { zScale } from "../controller/controller.js";   
 
 let canvas2d: HTMLCanvasElement;
-let time: HTMLSpanElement;
+
 
 let ctx: CanvasRenderingContext2D;
 let iData: ImageData;
 let data: ImageDataArray;
 
 export function init2d(n: number) {
+
+    document.documentElement.style.setProperty('--canvas-width', 2*n+'px');
+    document.documentElement.style.setProperty('--canvas-height', 2*n+'px');
+
     canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
     canvas2d.width = canvas2d.height = n;
     canvas2d.style.width = canvas2d.style.height = `${2*n}px`;
-
-    time = (document.getElementById("time") as HTMLSpanElement)!;
 
     ctx = canvas2d.getContext("2d")!;
     iData = ctx.getImageData(0, 0, canvas2d.width, canvas2d.height);
@@ -80,8 +82,6 @@ export function show2d(space: Space)
         ctx.fillRect(x-1.5, y-1.5, 3, 3);
     }
 
-    //
-    time.innerHTML = space.time.toString()
 }
 
 // in canvas coords

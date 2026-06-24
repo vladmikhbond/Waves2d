@@ -1,27 +1,87 @@
-input[type=range] {
-    width: 500px ;
+:root {
+    --canvas-width: 800px;
+    --canvas-height: 600px;
+    --element-height: 50px;
 }
 
-select {
-    width: 110px ;
+
+
+/* #mode {
+    display: inline;
+    width: 120px;
+}
+
+input[type=range] {
+    width: 400px;
+    margin-right: 20px;
 }
 
 #spaceParams {
     width: 450px;
 }
-
-#oscilParams, 
-#recieverParams {
+#oscilParams, #recieverParams {
     width: 300px;
+} */
+
+/* <!------------------ top panel ----------------> */
+input[type="text"],
+input[type="range"],
+select,
+button {
+    vertical-align: top;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    height: var(--element-height);
+}
+select,
+button {
+    background-color: rgb(42, 111, 113);
+    padding-top: 8px;
 }
 
-#time, #info {
-    font-size: large;
-    margin-left: 50px;
+input[type="checkbox"] {
+    background-color: rgb(42, 111, 113);
 }
+
+input[type="text"] {
+    width: 250px;
+    padding: 8px;
+}
+
+select {
+    width: 120px;
+    color: white;
+}
+
+input[type="range"] {
+    display: inline;
+    width: 300px;
+    margin-right: 20px;
+}
+
+#helpButton {
+    background-color: lightblue;
+}
+
+#time,
+#info {
+    margin-left: 50px;
+    font-size: large;
+}
+
+label {
+    display: inline;
+}
+
+section {
+    margin-bottom: 6px;
+}
+/* <!------------------ canvases ----------------> */
 
 .canvas-frame {
     position: relative;
+    width: var(--canvas-width);
+    height: var(--canvas-height);
 } 
 
 #canvas2d,
@@ -36,4 +96,21 @@ select {
 }
 #canvas3d {
     z-index: 1;
+}
+
+/* <!------------------ bottom panel ----------------> */
+.bottom-panel {
+   margin-top: 4px;
+   width: var(--canvas-width);
+} 
+
+.scene-textarea {
+    display: inline; 
+    height: var(--element-height);
+    width: calc(var(--canvas-width) - 154px);
+}
+.scene-btn {
+    vertical-align: top; 
+    background-color: lightblue;
+    width: 70px;
 }
