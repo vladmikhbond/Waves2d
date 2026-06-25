@@ -6,6 +6,8 @@ import { init3d, show3d} from "../view/view3d.js";
 import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
 import { getSpaceParams, getOscilParams, getReceiverParams } from "./params.js";
+import { sceneToJson, restoreSceneFromJson } from "./utils.js";
+
 
 const canvas2d = (document.getElementById("canvas2d") as HTMLCanvasElement)!;
 const canvas3d = (document.getElementById("canvas3d") as HTMLCanvasElement)!;
@@ -36,6 +38,7 @@ export default class Controller
         this.space = new Space(...getSpaceParams()); 
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
+        this.addDataHandlers() 
         this.initCanvases()
     }
 
@@ -59,6 +62,22 @@ export default class Controller
         init3d(n);
         show(this.space);
     }     
+
+    addDataHandlers() 
+    {
+        const areaEl = <HTMLTextAreaElement>document.getElementById("savedSceneText"); 
+
+        document.getElementById("saveSceneButton")!.addEventListener("click", () => {
+            areaEl.value = sceneToJson(this.space);
+        });
+
+        document.getElementById("loadSceneButton")!.addEventListener("click", () => {
+            restoreSceneFromJson(areaEl.value, this.space);
+            this.stop();
+            this.space.time = 0;
+            show(this.space);
+        });
+    }
 
 //#region other listeners
 

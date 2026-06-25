@@ -32,8 +32,8 @@ export default class Space
     constructor(size: number, k_m: number, loss: number) {
         
         this.size = size; 
-
         this.k = k_m;
+        
         // вузли з втратою
         this.nodes = new Array(this.n);
         for (let i = 0; i < this.n; i++) {
