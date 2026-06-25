@@ -46,8 +46,8 @@ function color(x: number, y: number, depth: number, channel: number) {
 export function show2d(space: Space) 
 {
     // Draw nodes as ImageData
-    for (let r = 0; r < space.n; r++) {
-        for (let c = 0; c < space.n; c++) {
+    for (let r = 0; r < space.size; r++) {
+        for (let c = 0; c < space.size; c++) {
             let x = c;
             let y = r;
             let level = 127 + 127 * zScale * space.nodes[r][c].z | 0;

@@ -55,7 +55,7 @@ export default class Controller
     }
 
     initCanvases() {        
-        const n = this.space.n;
+        const n = this.space.size;
         document.documentElement.style.setProperty('--canvas-width', 2*n +'px');
         document.documentElement.style.setProperty('--canvas-height', 2*n +'px');
         init2d(n);

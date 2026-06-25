@@ -1,66 +1,90 @@
-import { Mono, Oscillator} from "../models/oscillator";
+import { Mono, Oscillator } from "../models/oscillator";
 import Receiver from "../models/receiver";
 import Space from "../models/space";
 import { Node } from "../models/space";
+import Bar from "../models/bar";
  
 export function takeFocusOff() {
     (<HTMLCanvasElement>document.getElementById("canvas")).focus();
 }
 
+
+
+interface SceneOscillator {
+    r: number;
+    c: number;
+    amp: number;
+    ph: number;
+    dph: number;
+    vx: number;
+    type: "Oscillator" | "Mono";
+}
+
+interface SceneReceiver {
+    r: number;
+    c: number;
+    loss: number;
+    energy: number;
+}
+
+interface SceneBar {
+    r1: number;
+    c1: number;
+    r2: number;
+    c2: number;
+}
+
+interface SceneState {
+    size: number;
+    k: number;
+    time: number;
+
+    oscillators: SceneOscillator[];
+    receivers: SceneReceiver[];
+    bars: SceneBar[];
+}
+
 // Зберігає поточний стан об'єкта space в форматі JSON.
 export function sceneToJson(space: Space): string {
-    const data = {
+    const scene: SceneState = {
         size: space.size,
         k: space.k,
-        loss: space.loss,
-        oscillators: space.oscillators.map((osc) => ({
-            type: osc instanceof Mono ? "Mono" : "Oscillator",
+        time: space.time,
+        oscillators: space.oscillators.map(osc => ({
+            r: osc.r,
+            c: osc.c,
             amp: osc.amp,
             ph: osc.ph,
             dph: osc.dph,
             vx: osc.vx,
-            c: osc.c,
-            r: osc.r
+            type: osc instanceof Mono ? "Mono" : "Oscillator"
         })),
-        receivers: space.receivers.map((rec) => ({
-            c: rec.c,
+        receivers: space.receivers.map(rec => ({
             r: rec.r,
+            c: rec.c,
             loss: rec.loss,
-            energy: rec.energy,
+            energy: rec.energy
         })),
+        bars: space.bars.map(bar => ({
+            r1: bar.r1,
+            c1: bar.c1,
+            r2: bar.r2,
+            c2: bar.c2
+        }))
     };
 
-    return JSON.stringify(data, null, 2);
+    return JSON.stringify(scene, null, 2);
 }
 
-function restoreOscillator(data: any, space: Space): Oscillator | null {
-    if (!data || typeof data !== "object") {
-        return null;
-    }
-
-    const amp = Number(data.amp) || 0;
-    const vx = Number(data.vx) || 0;
-    const r = Number(data.r) || 0;
-    const c = Number(data.c) || 0;
-    let osc: Oscillator;
-
-if (data.type === "Mono") {
-        osc = new Mono(amp, 0, 0, r, c, space);
-    } else {
-        osc = new Oscillator(amp, 0, 0, vx, r, c, space);
-    }
-
-    if (typeof data.dph === "number") {
-        osc.dph = data.dph;
-    }
-    if (typeof data.ph === "number") {
-        osc.ph = data.ph;
-    }
-    osc.vx = vx;
-    osc.r = r;
-    osc.c = c;
-
-    return osc;
+function isSceneState(value: any): value is SceneState {
+    return value
+        && typeof value.size === "number"
+        && typeof value.k === "number"
+        && typeof value.time === "number"
+        && Array.isArray(value.nodes)
+        && Array.isArray(value.oscillators)
+        && Array.isArray(value.receivers)
+        && Array.isArray(value.bars);
 }
 
 // Відновлює стан об'єкта space з рядка json.
@@ -69,64 +93,48 @@ export function restoreSceneFromJson(json: string, space: Space): void {
         return;
     }
 
-    let data: any;
+    let scene: SceneState;
     try {
-        data = JSON.parse(json);
-    } catch (error) {
-        console.error("restoreSceneFromJson: invalid JSON", error);
+        scene = JSON.parse(json);
+    } catch {
         return;
     }
 
-    if (!data || typeof data !== "object") {
+    if (!isSceneState(scene)) {
         return;
     }
 
-    if (typeof data.size === "number") {
-        space.size = data.size;
-    }
+    space.size = scene.size;
+    space.k = scene.k;
+    space.time = scene.time;
 
-    if (typeof data.k === "number") {
-        space.k = data.k;
-    }
-    space.time = 0;
-    
-    const N = space.size;
-
-    
 
     // вузли з втратою
-    space.nodes = new Array(N);
-    for (let i = 0; i < N; i++) {
-        space.nodes[i] = new Array(N);
-        for (let j = 0; j < N; j++) {
-            space.nodes[i][j] = new Node(data.loss);
+    space.nodes = new Array(space.size);
+    for (let i = 0; i < space.size; i++) {
+        space.nodes[i] = new Array(space.size);
+        for (let j = 0; j < space.size; j++) {
+            space.nodes[i][j] = new Node(0);         ///////////////
         }
     }
 
-
+    space.bars = scene.bars.map(bar => new Bar(bar.r1, bar.c1, bar.r2, bar.c2));
+    space.throwStones();
 
     space.oscillators = [];
-    if (Array.isArray(data.oscillators)) {
-        for (const oscData of data.oscillators) {
-            const osc = restoreOscillator(oscData, space);
-            if (osc) {
-                space.addOscillator(osc);
-            }
-        }
+    for (const oscData of scene.oscillators) {
+        const oscillator = oscData.type === "Mono"
+            ? new Mono(oscData.r, oscData.c, oscData.amp, 0, 0, space)
+            : new Oscillator(oscData.r, oscData.c, oscData.amp, 0, 0, oscData.vx, space);
+        oscillator.ph = oscData.ph;
+        oscillator.dph = oscData.dph;
+        space.oscillators.push(oscillator);
     }
 
     space.receivers = [];
-    if (Array.isArray(data.receivers)) {
-        for (const recData of data.receivers) {
-            if (!recData || typeof recData !== "object") {
-                continue;
-            }
-            const r = Number(recData.r) || 0;
-            const c = Number(recData.c) || 0;
-            const loss = Number(recData.loss) || 0;
-            const receiver = new Receiver(r, c, loss, space);
-            receiver.energy = Number(recData.energy) || 0;
-            space.addReceiver(receiver);
-        }
+    for (const receiverData of scene.receivers) {
+        const receiver = new Receiver(receiverData.r, receiverData.c, receiverData.loss, space);
+        receiver.energy = receiverData.energy;
+        space.receivers.push(receiver);
     }
 }

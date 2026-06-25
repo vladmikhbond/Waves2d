@@ -93,7 +93,7 @@ function createGrid(n: number) {
 }
 
 function updateSurface(space: Space) {
-    const n = space.n;
+    const n = space.size;
 
     if (!mesh || nVisCurrent !== n) {
         if (mesh) scene.remove(mesh);
@@ -118,7 +118,7 @@ function updateSurface(space: Space) {
 
 function updateBars(space: Space) {
     barsGroup.clear();
-    const n2 = space.n / 2;
+    const n2 = space.size / 2;
 
     for (const b of space.bars) {
         const x1 = b.c1 - n2 + 0.5;
@@ -134,7 +134,7 @@ function updateBars(space: Space) {
 
 function updateOscillators(space: Space) {
     oscGroup.clear();
-    const n2 = space.n / 2;
+    const n2 = space.size / 2;
     const sphereGeom = new THREE.SphereGeometry(2, 10, 10);
     const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
 
@@ -150,7 +150,7 @@ function updateOscillators(space: Space) {
 
 function updateReceivers(space: Space) {
     recGroup.clear();
-    const n2 = space.n / 2;
+    const n2 = space.size / 2;
     const sphereGeom = new THREE.SphereGeometry(2, 10, 10);
     const sphereMat = new THREE.MeshStandardMaterial({ color: 0xFFFF00, emissive: 0x330000 });
 

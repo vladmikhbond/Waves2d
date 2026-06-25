@@ -25,20 +25,16 @@ export default class Space
     receivers: Receiver[] = []
     bars: Bar[] = []
 
-    get n() {
-        return this.size;
-    }
-
     constructor(size: number, k_m: number, loss: number) {
         
         this.size = size; 
         this.k = k_m;
         
         // вузли з втратою
-        this.nodes = new Array(this.n);
-        for (let i = 0; i < this.n; i++) {
-            this.nodes[i] = new Array(this.n);
-            for (let j = 0; j < this.n; j++) {
+        this.nodes = new Array(this.size);
+        for (let i = 0; i < this.size; i++) {
+            this.nodes[i] = new Array(this.size);
+            for (let j = 0; j < this.size; j++) {
                 this.nodes[i][j] = new Node(loss);
             }
         }
@@ -112,8 +108,8 @@ export default class Space
     } 
 
     throwStones() {
-        for (let r = 0; r < this.n - 1; r++) {
-            for (let c = 0; c < this.n - 1; c++) {
+        for (let r = 0; r < this.size - 1; r++) {
+            for (let c = 0; c < this.size - 1; c++) {
                 this.nodes[r][c].is_stone = false
             }
         }
@@ -224,8 +220,8 @@ export default class Space
     calm() {
         const n = this.size;
         // швидкості
-        for (let r = 1; r < this.n - 1; r++) {
-            for (let c = 1; c < this.n - 1; c++) {
+        for (let r = 1; r < this.size - 1; r++) {
+            for (let c = 1; c < this.size - 1; c++) {
                 this.nodes[r][c].z = 0;
                 this.nodes[r][c].v = 0;
             }
