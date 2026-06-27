@@ -38,10 +38,13 @@ interface SceneState {
     size: number;
     k: number;
     time: number;
+    loss: number;
 
     oscillators: SceneOscillator[];
     receivers: SceneReceiver[];
     bars: SceneBar[];
+
+    paramsValue: string;
 }
 
 // Зберігає поточний стан об'єкта space в форматі JSON.
@@ -50,6 +53,7 @@ export function sceneToJson(space: Space): string {
         size: space.size,
         k: space.k,
         time: space.time,
+        loss: space.loss,
         oscillators: space.oscillators.map(osc => ({
             r: osc.r,
             c: osc.c,
@@ -70,7 +74,8 @@ export function sceneToJson(space: Space): string {
             c1: bar.c1,
             r2: bar.r2,
             c2: bar.c2
-        }))
+        })),
+        paramsValue: (<HTMLInputElement>document.getElementById("spaceParams")).value
     };
 
     return JSON.stringify(scene, null, 2);
@@ -96,17 +101,15 @@ export function restoreSceneFromJson(json: string, space: Space): void {
     let scene: SceneState;
     try {
         scene = JSON.parse(json);
-    } catch {
-        return;
-    }
-
-    if (!isSceneState(scene)) {
+    } catch (er) {
+        alert(er)
         return;
     }
 
     space.size = scene.size;
     space.k = scene.k;
     space.time = scene.time;
+    
 
 
     // вузли з втратою
@@ -114,7 +117,7 @@ export function restoreSceneFromJson(json: string, space: Space): void {
     for (let i = 0; i < space.size; i++) {
         space.nodes[i] = new Array(space.size);
         for (let j = 0; j < space.size; j++) {
-            space.nodes[i][j] = new Node(0);         ///////////////
+            space.nodes[i][j] = new Node(scene.loss);    
         }
     }
 
@@ -128,13 +131,15 @@ export function restoreSceneFromJson(json: string, space: Space): void {
             : new Oscillator(oscData.r, oscData.c, oscData.amp, 0, 0, oscData.vx, space);
         oscillator.ph = oscData.ph;
         oscillator.dph = oscData.dph;
-        space.oscillators.push(oscillator);
+        space.addOscillator(oscillator);
     }
 
     space.receivers = [];
     for (const receiverData of scene.receivers) {
         const receiver = new Receiver(receiverData.r, receiverData.c, receiverData.loss, space);
         receiver.energy = receiverData.energy;
-        space.receivers.push(receiver);
+        space.addReceiver(receiver);
     }
+
+    (<HTMLInputElement>document.getElementById("spaceParams")).value = scene.paramsValue;
 }

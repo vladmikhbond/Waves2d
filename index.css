@@ -4,26 +4,8 @@
     --element-height: 50px;
 }
 
-
-
-/* #mode {
-    display: inline;
-    width: 120px;
-}
-
-input[type=range] {
-    width: 400px;
-    margin-right: 20px;
-}
-
-#spaceParams {
-    width: 450px;
-}
-#oscilParams, #recieverParams {
-    width: 300px;
-} */
-
 /* <!------------------ top panel ----------------> */
+
 input[type="text"],
 input[type="range"],
 select,
@@ -106,7 +88,8 @@ section {
 
 .scene-textarea {
     display: inline; 
-    height: var(--element-height);
+    /* height: var(--element-height); */
+    height: 400px;
     width: calc(var(--canvas-width) - 154px);
 }
 .scene-btn {
