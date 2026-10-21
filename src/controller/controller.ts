@@ -99,26 +99,8 @@ export default class Controller
             this.setCurrentModelWithJson(areaEl.value);
 
         });
-
     }
 
-
-
-    // addDataHandlers() 
-    // {
-    //     const areaEl = <HTMLTextAreaElement>document.getElementById("savedSceneText"); 
-
-    //     document.getElementById("saveSceneButton")!.addEventListener("click", () => {
-    //         areaEl.value = sceneToJson(this.space);
-    //     });
-
-    //     document.getElementById("loadSceneButton")!.addEventListener("click", () => {
-    //         restoreSceneFromJson(areaEl.value, this.space);
-    //         this.stop();
-    //         this.space.time = 0;
-    //         show(this.space);
-    //     });
-    // }
 
 //#region other listeners
 
