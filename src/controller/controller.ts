@@ -63,21 +63,62 @@ export default class Controller
         show(this.space);
     }     
 
+    // повертає серіалізовану модель у вигляді рядку JSON
+    getCurrentModelAsJson(): string {
+        return sceneToJson(this.space);
+    }
+
+
+    // оновлює модель з рядку JSON
+    setCurrentModelWithJson(jsonStr: string ) {
+        restoreSceneFromJson(jsonStr, this.space);
+        this.stop();
+        this.space.time = 0;
+        show(this.space);
+    }
+
+
     addDataHandlers() 
     {
+        const sceneSelect = <HTMLSelectElement>document.getElementById("sceneSelect");
+        const sceneName = <HTMLInputElement>document.getElementById("sceneName");
+        const saveSceneButton = <HTMLButtonElement>document.getElementById("saveSceneButton");
+        const removeSceneButton = <HTMLButtonElement>document.getElementById("removeSceneButton");
+
         const areaEl = <HTMLTextAreaElement>document.getElementById("savedSceneText"); 
 
-        document.getElementById("saveSceneButton")!.addEventListener("click", () => {
+        saveSceneButton.addEventListener("click", () => {
             areaEl.value = sceneToJson(this.space);
         });
 
-        document.getElementById("loadSceneButton")!.addEventListener("click", () => {
-            restoreSceneFromJson(areaEl.value, this.space);
-            this.stop();
-            this.space.time = 0;
-            show(this.space);
+        removeSceneButton.addEventListener("click", () => {
+            areaEl.value = "";
         });
+
+        sceneSelect.addEventListener("click", () => {
+            this.setCurrentModelWithJson(areaEl.value);
+
+        });
+
     }
+
+
+
+    // addDataHandlers() 
+    // {
+    //     const areaEl = <HTMLTextAreaElement>document.getElementById("savedSceneText"); 
+
+    //     document.getElementById("saveSceneButton")!.addEventListener("click", () => {
+    //         areaEl.value = sceneToJson(this.space);
+    //     });
+
+    //     document.getElementById("loadSceneButton")!.addEventListener("click", () => {
+    //         restoreSceneFromJson(areaEl.value, this.space);
+    //         this.stop();
+    //         this.space.time = 0;
+    //         show(this.space);
+    //     });
+    // }
 
 //#region other listeners
 

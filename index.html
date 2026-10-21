@@ -48,11 +48,15 @@
         </div>
 
         <!-- ------------------bottom panel------------------  -->
-        <div class="bottom-panel">
-            <button id="saveSceneButton" class="scene-btn" title="Export scene">⬇</button>
-            <textarea id="savedSceneText" rows="1" class="scene-textarea"></textarea>
-            <button id="loadSceneButton" class="scene-btn" title="Import scene">⬆</button>
-        </div>
+    <div class="bottom-panel">
+          <button id="saveSceneButton" class="scene-btn" title="Save script">✔</button>
+          <input id="sceneName" type="text" class="scene-name" title="Scene name" >
+          <select id="sceneSelect" class="scene-select" ></select>
+          <button id="removeSceneButton" class="scene-btn" title="Delete script">❌</button>
+    </div>
+    
+    <textarea id="savedSceneText" rows="1" class="scene-textarea"> </textarea>
+
 
     </main>
     <script type="module" src="main.js"></script>
