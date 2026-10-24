@@ -15,14 +15,26 @@ async function run() {
   await fs.mkdir(outDir, { recursive: true });
 
   await build({
+    absWorkingDir: root,
     entryPoints: [path.join(root, "src", "main.ts")],
     bundle: true,
+    external: ["three"],
     platform: "browser",
     format: "esm",
     sourcemap: true,
     target: ["es2022"],
     outfile: path.join(outDir, "main.js"),
     tsconfig: path.join(root, "tsconfig.json"),
+  });
+
+  await build({
+    absWorkingDir: root,
+    entryPoints: ["three"],
+    bundle: true,
+    platform: "browser",
+    format: "esm",
+    target: ["es2022"],
+    outfile: path.join(outDir, "three.js"),
   });
 
   await copy(path.join(root, "index.html"), path.join(outDir, "index.html"));
