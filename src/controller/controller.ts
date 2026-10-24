@@ -5,7 +5,7 @@ import Space from "../models/space.js";
 import { init3d, show3d} from "../view/view3d.js";
 import { init2d, show2d, grayLine2d, clearCanvas2d, grayRect2d} from "../view/view2d.js";
 import Bar from "../models/bar.js";
-import { getSpaceParams, getOscilParams, getReceiverParams } from "./params.js";
+import { getParams } from "./params.js";
 import { sceneToJson, restoreSceneFromJson } from "./utils.js";
 
 
@@ -35,7 +35,8 @@ export default class Controller
     viewMode: ViewMode = ViewMode.Two;
 
     constructor() {
-        this.space = new Space(...getSpaceParams()); 
+        const ps = getParams("infoParams");   // "size: 500, k: 0.49, loss: 0.0"
+        this.space = new Space(ps.size, ps.k, ps.loss); 
         this.addOtherListeners();
         this.addMouseListeners(canvas2d);
         this.addDataHandlers() 
@@ -145,32 +146,46 @@ export default class Controller
 
         // change visibility             
         document.getElementById("mode")!.addEventListener("change", (e) => {
-            document.getElementById("oscilParams")!.style.display = 
-                    this.mode == Mode.Osc || this.mode == Mode.Mon ? "inline" : "none";
-            document.getElementById("recieverParams")!.style.display = 
-                    this.mode == Mode.Rec ? "inline" : "none";
+            let infoParams = document.getElementById("infoParams")!.style;
+            let oscilParams = document.getElementById("oscilParams")!.style;
+            let recieverParams = document.getElementById("recieverParams")!.style;
+
+            infoParams.display = oscilParams.display = recieverParams.display = "none";
+
+            switch(this.mode) {
+                case Mode.Inf:
+                    infoParams.display = "inline";
+                    break;
+                case Mode.Osc, Mode.Mon:
+                    oscilParams.display = "inline";
+                    break;
+                case Mode.Rec:
+                    recieverParams.display = "inline";
+                    break;
+            }
         });
 
 
         // params changed 
-        document.getElementById("spaceParams")!.addEventListener("keydown", (e: KeyboardEvent) => {
+        document.getElementById("infoParams")!.addEventListener("keydown", (e: KeyboardEvent) => {
 
             if (e.key == "Enter") {
                 document.getElementById("zScale")!.focus();
                 this.stop();
-                const [size,  k,  loss] = getSpaceParams();
                 
-                if (this.space.size != size ) {
+                const ps = getParams("infoParams");   // "size: 500, k: 0.49, loss: 0.0"
+                
+                if (this.space.size != ps.size ) {
                     // new space
-                    this.space = new Space(size, k, loss);
+                    this.space = new Space(ps.size, ps.k, ps.loss); 
                     this.initCanvases();
                     
                     return;
                 }                                            
-                if (this.space.k != k || this.space.loss != loss) {
+                if (this.space.k != ps.k || this.space.loss != ps.loss) {
                     // new params
-                    this.space.k = k;
-                    this.space.loss = loss;
+                    this.space.k = ps.k;
+                    this.space.loss = ps.loss;
                 } else {
                     // just calm
                     this.space.calm();
@@ -179,19 +194,19 @@ export default class Controller
             }
         });  
         
-        document.getElementById("oscilParams")!.addEventListener("keydown", (e: KeyboardEvent) => 
-        {
-            if (e.key == "Enter") {
-                getOscilParams();
-            }
-        }); 
+        // document.getElementById("oscilParams")!.addEventListener("keydown", (e: KeyboardEvent) => 
+        // {
+        //     if (e.key == "Enter") {
+        //         getOscilParams();
+        //     }
+        // }); 
 
-        document.getElementById("recieverParams")!.addEventListener("keydown", (e: KeyboardEvent) => 
-        {
-            if (e.key == "Enter") {
-                getReceiverParams();
-            }
-        }); 
+        // document.getElementById("recieverParams")!.addEventListener("keydown", (e: KeyboardEvent) => 
+        // {
+        //     if (e.key == "Enter") {
+        //         getReceiverParams();
+        //     }
+        // }); 
 
         
         // do one step
@@ -287,8 +302,8 @@ export default class Controller
                     this.addBars(r0, c0, r1, c1);
                     break;
                 case Mode.Rec:
-                    const loss = getReceiverParams(); 
-                    this.addReceivers(r0, c0, r1, c1, loss);
+                    const ps = getParams("receiverParams"); // "loss: 0.5"
+                    this.addReceivers(r0, c0, r1, c1, ps.loss);
                     break;
                 case Mode.Del:
                     this.space.DeleteInRect(r0, c0, r1, c1);
@@ -305,12 +320,12 @@ export default class Controller
 
     addOscillators(r0:number, c0:number, r1:number, c1: number) 
     {
-        let [amp, q, vx, lambda] = getOscilParams();    //todo
+        const ps = getParams("oscilParams");    // "amp: 1, q: 0.25, vx: 0"
         // просто точка
         if (c0 == c1 && r0 == r1) {
             let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r0, c0, amp, q, lambda, vx, this.space) : 
-                    new Mono(r0, c0, amp, q, lambda, this.space)
+                    new Oscillator(r0, c0, ps.amp, ps.q, ps.lambda, ps.vx, this.space) : 
+                    new Mono(r0, c0, ps.amp, ps.q, ps.lambda, this.space)
             this.space.addOscillator(osc);
             return;
         }
@@ -321,8 +336,8 @@ export default class Controller
             for (let r = r0; r <= r1; r += 2) {
                 let c = (r - r0)*(c1 - c0)/(r1 - r0) + c0 | 0;
                 let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r, c, amp/2, q, lambda, vx, this.space) : 
-                    new Mono(r, c, amp/2, q, lambda, this.space)
+                    new Oscillator(r, c, ps.amp/2, ps.q, ps.lambda, ps.vx, this.space) : 
+                    new Mono(r, c, ps.amp/2, ps.q, ps.lambda, this.space)
                 this.space.addOscillator(osc);
             }
         // цикл по стовбцях
@@ -332,8 +347,8 @@ export default class Controller
             for (let c = c0; c <= c1; c += 2) {
                 let r = (c - c0) * (r1 - r0) / (c1 - c0) + r0 | 0;
                 let osc = this.mode == Mode.Osc ? 
-                    new Oscillator(r, c, amp/2, q, lambda, vx, this.space) : 
-                    new Mono(r, c, amp/2, q, lambda, this.space)
+                    new Oscillator(r, c, ps.amp/2, ps.q, ps.lambda, ps.vx, this.space) : 
+                    new Mono(r, c, ps.amp/2, ps.q, ps.lambda, this.space)
                 this.space.addOscillator(osc);             
             }
         }
